@@ -2,12 +2,10 @@
 
 Страница голосования: https://julskazka.github.io/legacy/
 
-Всё постоянное хранение голосов — в GitHub: [votes/votes.json](https://github.com/julskazka/legacy/blob/main/votes/votes.json).
+Голоса хранятся только в GitHub: [votes/votes.json](votes/votes.json).
 
-Запись без стороннего сервера подготовлена через [GitHub Actions](https://github.com/julskazka/legacy/actions/workflows/save-vote.yml); скрипт записи: `votes/apply-vote.mjs`.
+HTML отправляет Telegram ID из Notibot и ID номинанта непосредственно через GitHub REST API. Один участник — один действующий голос; при повторном выборе он заменяется.
 
-**Настройка на стороне Notibot ещё требуется**: отправка авторизованного `workflow_dispatch` через защищённую сторону Notibot. GitHub Pages не умеет самостоятельно изменять файлы репозитория, а OAuth/PAT нельзя публиковать в HTML.
+**Кнопки сохранения заработают после заполнения токена в [votes/config.js](votes/config.js).** Сейчас токен пуст; GitHub не принимает неавторизованную запись.
 
-Точные параметры запроса и права токена: [votes/README.md](votes/README.md).
-
-Голосование до 21 ноября 2026, 23:59 МСК. Один пользователь Notibot → один голос за одного номинанта; при новом выборе прежний заменяется. Без подтверждения записи в GitHub страница не должна показывать успех.
+Подробности: [votes/README.md](votes/README.md). Голосование до 21 ноября 2026, 23:59 МСК.
