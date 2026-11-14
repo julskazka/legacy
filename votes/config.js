@@ -1,6 +1,6 @@
 // The browser never receives a GitHub token; requests use the server proxy.
 window.NASLEDIE_GITHUB_TOKEN = 'server-side-handler';
-window.NASLEDIE_VOTES_API = 'https://nasledie-voting-api.vercel.app/api/votes';
+window.NASLEDIE_VOTES_API = 'https://nasledie-voting-api-julskazka-2025s-projects.vercel.app/api/votes';
 (function(){
  const originalFetch=window.fetch.bind(window);
  const target=/^https:\/\/api\.github\.com\/repos\/julskazka\/legacy\/contents\/votes\/votes\.json(?:\?.*)?$/i;
