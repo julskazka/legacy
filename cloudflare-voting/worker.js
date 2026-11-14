@@ -40,13 +40,13 @@ function formReply(requestId,payload){
  // Only emit a fixed script and JSON-escaped data, not HTML derived from users.
  const message=JSON.stringify({source:'nasledie-voting',requestId,payload})
    .replace(/</g,'\\u003c').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029');
- return new Response('<!doctype html><meta charset="utf-8"><script>parent.postMessage('+message+', "*")<\\/script>',{
+ return new Response('<!doctype html><meta charset="utf-8"><script>parent.postMessage('+message+', "*")</script>',{
   status:200,headers:{...CORS,'Content-Type':'text/html; charset=utf-8','Content-Security-Policy':"default-src 'none'; script-src 'unsafe-inline'; frame-ancestors *",'Cross-Origin-Resource-Policy':'cross-origin'}
  });
 }
 export default {
  async fetch(request,env){
-  const url=new URL(request.url),path=url.pathname.replace(/\\/+$/,'');
+  const url=new URL(request.url),path=url.pathname.replace(/\/+$/,'');
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{...CORS,
    'Access-Control-Allow-Methods':'GET,POST,OPTIONS','Access-Control-Allow-Headers':'Content-Type,Accept','Access-Control-Max-Age':'86400'
   }});
@@ -60,7 +60,7 @@ export default {
    if(request.method==='GET'&&path==='/api/votes')return reply(await data(env.DB,url.searchParams.get('userId')));
    if(request.method==='GET'&&path==='/api/votes.js'){
     const cb=url.searchParams.get('callback')||'';
-    if(!/^window\\.__nasledie_nv_[a-zA-Z0-9_]{1,100}$/.test(cb))return reply({ok:false,error:'Неверный callback'},400);
+    if(!/^window\.__nasledie_nv_[a-zA-Z0-9_]{1,100}$/.test(cb))return reply({ok:false,error:'Неверный callback'},400);
     return jsonp(await data(env.DB,url.searchParams.get('userId')),cb);
    }
    if(request.method==='POST'&&path==='/api/vote'){
