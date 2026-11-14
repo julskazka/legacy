@@ -47,7 +47,7 @@ export default {
    await initialize(env.DB);
    if(request.method==='GET'&&path==='/api/health'){
     await env.DB.prepare('SELECT COUNT(*) AS n FROM votes').first();
-    return reply({ok:true,database:'connected',endAt:END_AT},200,origin);
+    return reply({ok:true,database:'connected',endAt:END_AT,version:'2026-11-15-cors-fix'},200,origin);
    }
    if(request.method==='GET'&&path==='/api/votes'){
     return reply(await data(env.DB,url.searchParams.get('userId')),200,origin);
