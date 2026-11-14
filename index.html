@@ -183,12 +183,23 @@ function identityFrom(source){
 }
 function updateVoteReady(){
  voteReady=Boolean(VOTE_API_URL&&notibotUserId);
- if(!VOTE_API_URL)statusMessage('Приём голосов временно недоступен.'); 
+ if(!VOTE_API_URL)statusMessage('Вы можете выбрать номинанта. Подтверждение записи голоса пока недоступно.'); 
  else if(!notibotUserId)statusMessage('Откройте страницу через приложение Notibot, чтобы проголосовать.');
  else statusMessage('Выберите номинанта и подтвердите свой голос.');
 }
 async function refreshTotals(){
- if(!VOTE_API_URL)return;
+ if(!VOTE_API_URL){
+   try{
+     const r=await fetch('https://raw.githubusercontent.com/julskazka/legacy/main/votes/votes.json?t='+Date.now(),{cache:'no-store'});
+     if(!r.ok)throw Error('GitHub votes unavailable');
+     const votes=await r.json();const next={};
+     for(const entry of Object.values(votes)){const key=String(entry?.nominee_id??'');if(/^\\d+$/.test(key))next[key]=(next[key]||0)+1;}
+     counts=next;
+     if(notibotUserId&&votes[notibotUserId])selected=Number(votes[notibotUserId].nominee_id)||null;
+     render();
+   }catch(e){statusMessage('Не удалось прочитать голоса из GitHub.');}
+   return;
+ }
  try{const r=await fetch(VOTE_API_URL+'/results',{cache:'no-store'});if(!r.ok)throw Error('results');
  const data=await r.json();counts=data.nominees||{};render();
  }catch(e){statusMessage('Не удалось обновить результаты. Попробуйте позже.');}
@@ -196,7 +207,7 @@ async function refreshTotals(){
 async function submitRealVote(){
  if(!pending)return;
  updateVoteReady();
- if(!voteReady){hideModal('confirm');return;}
+ if(!voteReady){el('confirmInfo').textContent=!notibotUserId?'Откройте страницу внутри Notibot, чтобы подтвердить голос.':'Не настроен защищённый доступ для записи голосов в GitHub. Голос ещё не сохранён.';return;}
  const id=pending;const button=el('approve');button.disabled=true;button.textContent='Сохраняем голос…';
  try{
  const response=await fetch(VOTE_API_URL+'/vote',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({userId:notibotUserId,nomineeId:id})});
@@ -208,10 +219,10 @@ async function submitRealVote(){
 function initVoting(){
  updateVoteReady();
  const bridge=window.NotibotIntegration;
- if(bridge?.onUpdate)bridge.onUpdate(state=>{notibotUserId=identityFrom(state.identity)||identityFrom(state.user);updateVoteReady()});
- else if(window.notibot?.onUpdate)window.notibot.onUpdate(user=>{notibotUserId=identityFrom(user);updateVoteReady()});
+ if(bridge?.onUpdate)bridge.onUpdate(state=>{notibotUserId=identityFrom(state.identity)||identityFrom(state.user);updateVoteReady();render();refreshTotals()});
+ else if(window.notibot?.onUpdate)window.notibot.onUpdate(user=>{notibotUserId=identityFrom(user);updateVoteReady();render();refreshTotals()});
  if(window.parent!==window){
-   window.addEventListener('message',ev=>{if(ev.source!==window.parent)return;if(ev.data?.type==='NOTIBOT_INIT'){notibotUserId=identityFrom(ev.data.data?.user);updateVoteReady();}});
+   window.addEventListener('message',ev=>{if(ev.source!==window.parent)return;if(ev.data?.type==='NOTIBOT_INIT'){notibotUserId=identityFrom(ev.data.data?.user);updateVoteReady();render();refreshTotals();}});
  }
  refreshTotals();
  setInterval(refreshTotals,45000);
@@ -230,7 +241,7 @@ function render(){
  const slice=list.slice(0,perPage);
  el('cards').innerHTML=slice.map(n=>{
  const votes=voteCount(n.id),current=selected===n.id;
- return `<article class="nominee" id="n-${n.id}"><button class="portrait-button" type="button" data-photo="${n.id}" aria-label="Посмотреть полную фотографию: ${safe(n.name)}"><img class="portrait" src="${n.display}" width="560" height="560" loading="lazy" decoding="async" alt="Фотография премии: ${safe(n.name)}"></button><div class="content"><div class="eyebrow">Номинант №${n.id}</div><h4 class="name">${safe(n.name)}</h4><div class="nomination">${safe(n.nomination)}</div><div class="card-actions"><div class="vote-count"><strong>${votes}</strong> ${plural(votes,['голос','голоса','голосов'])}</div><button type="button" class="vote-btn ${current?'chosen':''}" data-vote="${n.id}" ${Date.now()>=CUTOFF||!voteReady?'disabled':''}>${current?'Ваш голос':'Проголосовать'}</button></div></div></article>`;
+ return `<article class="nominee" id="n-${n.id}"><button class="portrait-button" type="button" data-photo="${n.id}" aria-label="Посмотреть полную фотографию: ${safe(n.name)}"><img class="portrait" src="${n.display}" width="560" height="560" loading="lazy" decoding="async" alt="Фотография премии: ${safe(n.name)}"></button><div class="content"><div class="eyebrow">Номинант №${n.id}</div><h4 class="name">${safe(n.name)}</h4><div class="nomination">${safe(n.nomination)}</div><div class="card-actions"><div class="vote-count"><strong>${votes}</strong> ${plural(votes,['голос','голоса','голосов'])}</div><button type="button" class="vote-btn ${current?'chosen':''}" data-vote="${n.id}" ${Date.now()>=CUTOFF?'disabled':''}>${current?'Ваш голос':'Проголосовать'}</button></div></div></article>`;
  }).join('')||'<div class="empty">По вашему запросу номинанты не найдены. Попробуйте изменить поиск.</div>';
  el('more').hidden=list.length<=perPage;
  updateTimer();
@@ -243,7 +254,7 @@ function showPage(name){activePage=name; document.querySelectorAll('.page').forE
 function showModal(id){pending=id;const n=NOMINEES.find(x=>x.id===id);if(!n)return;
  el('confirmTitle').textContent=selected&&selected!==id?'Изменить ваш голос?':'Подтвердите выбор';
  el('confirmName').textContent=n.name;
- el('confirmInfo').textContent=selected&&selected!==id?'Ваш предыдущий голос будет заменён новым.':'После подтверждения ваш голос будет отправлен для учёта.';
+ el('confirmInfo').textContent=!VOTE_API_URL?'Выбор номинанта доступен, но запись голоса в GitHub пока не подключена.':selected&&selected!==id?'Ваш предыдущий голос будет заменён новым.':'После подтверждения ваш голос будет отправлен для учёта.';
  el('confirm').classList.add('open');el('confirm').setAttribute('aria-hidden','false');}
 function hideModal(id){el(id).classList.remove('open');el(id).setAttribute('aria-hidden','true');}
 function showThanks(){el('thanks').classList.add('open');el('thanks').setAttribute('aria-hidden','false');}
