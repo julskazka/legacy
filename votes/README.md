@@ -1,24 +1,27 @@
 # Голосование «НАСЛЕДИЕ XXI века»
 
-Публичная страница: https://julskazka.github.io/legacy/
+Страница: https://julskazka.github.io/legacy/
 
-## Архитектура (15.11.2026)
+## Где хранятся голоса
 
-- Публичная страница получает идентификатор из Notibot.
-- Запросы к GitHub Contents API для votes/votes.json перенаправляются через votes/config.js на серверный обработчик Vercel.
-- API: https://nasledie-voting-api.vercel.app/api/votes
-- В Vercel переменная окружения GITHUB_VOTES_TOKEN (Production) должна содержать действующий fine-grained PAT для julskazka/legacy с Contents: Read and write. В GitHub Pages и JavaScript **не публиковать** токен.
-- votes/votes.json — единственный реестр голосов: один ID → один текущий номинант; повторный голос заменяет прежний.
-- При конфликте SHA клиент должен повторить запрос после чтения новой версии.
-- Голосование заканчивается 21 ноября 2026 в 23:59 МСК.
+- Страница GitHub Pages получает пользовательский ID через Notibot.
+- Cloudflare Worker принимает запросы голосования и сохраняет их в базе Cloudflare D1.
+- Один ID = одна действующая запись. Переголосование заменяет предыдущего номинанта.
+- В GitHub хранятся исходный HTML и JavaScript, а не оперативные голоса. Для голосования GitHub-токен и Vercel не нужны.
+- Код Worker: [cloudflare-voting/worker.js](../cloudflare-voting/worker.js)
+- Пошаговое развёртывание: [cloudflare-voting/README.md](../cloudflare-voting/README.md)
+- Окончание: **21 ноября 2026 года, 23:59 МСК** (`2026-11-21T20:59:00.000Z`).
 
-## Подключение
+## Подключение после создания Worker
 
-1. Откройте https://vercel.com/ → проект nas​ledie-voting-api (название: nasledie-voting-api) → Settings → Environment Variables.
-2. Добавьте GITHUB_VOTES_TOKEN с действительным токеном GitHub, область Production.
-3. Redeploy последнего Production deployment, чтобы новая переменная окружения была доступна обработчику.
-4. Протестируйте голосование на https://julskazka.github.io/legacy/ и убедитесь, что votes/votes.json обновился.
+Откройте [votes/config.js](./config.js) и укажите адрес вашего Cloudflare Worker:
 
-Если API возвращает 503 «Server token is not configured», переменная не задана. Ошибка GitHub 401 означает нерабочий токен в переменной; замените значение в Vercel, а не в GitHub.
+```js
+window.NASLEDIE_VOTES_API = 'https://nasledie-voting.<ВАШ_SUBDOMAIN>.workers.dev';
+```
 
-**Ограничение:** сервер скрывает токен, но само по себе это не доказывает, что присланный Telegram ID действительно принадлежит голосующему. Для защиты от подмены требуется проверять подписанный идентификатор Notibot на сервере.
+Для проверки откройте `https://nasledie-voting.<ВАШ_SUBDOMAIN>.workers.dev/api/health`: должен вернуться JSON с `"ok":true` и `"database":"connected"`.
+
+После установки адреса проверьте голосование через Notibot и сохранение голоса в D1. Не публикуйте ключи или секреты в `config.js`.
+
+**Ограничение защиты:** пока Worker принимает ID из браузерного клиента без криптографической проверки подписи Notibot. Ограничение CORS не защищает от подмены ID напрямую через API.
