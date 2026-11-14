@@ -1,14 +1,23 @@
 // Cloudflare Worker + D1: Nasledie XXI voting. One vote per Notibot user.
-const SITE_ORIGIN='https://julskazka.github.io';
+// Notibot may open the GitHub Pages app in a sandboxed WebView.
+// Vote requests contain no cookies; support cross-origin browser requests.
+const CORS_ORIGIN='*';
 const END_AT='2026-11-21T20:59:00.000Z'; // 21 Nov 2026, 23:59 Moscow
 function reply(payload,status=200,origin=''){
  const headers={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'};
- if(origin===SITE_ORIGIN){headers['Access-Control-Allow-Origin']=SITE_ORIGIN;headers['Vary']='Origin';}
+ headers['Access-Control-Allow-Origin']=CORS_ORIGIN;
  return new Response(JSON.stringify(payload),{status,headers});
 }
 function voterIdOk(v){return typeof v==='string'&&/^(tg|max|nb):[A-Za-z0-9_.:-]{1,100}$/.test(v);}
-async function initialize(db){
- await db.prepare('CREATE TABLE IF NOT EXISTS votes (voter_id TEXT PRIMARY KEY NOT NULL, nominee_id INTEGER NOT NULL, updated_at TEXT NOT NULL)').run();
+let initPromise;
+function initialize(db){
+ if(!initPromise){
+  initPromise=db.prepare('CREATE TABLE IF NOT EXISTS votes (voter_id TEXT PRIMARY KEY NOT NULL, nominee_id INTEGER NOT NULL, updated_at TEXT NOT NULL)').run().catch(error=>{
+   initPromise=null;
+   throw error;
+  });
+ }
+ return initPromise;
 }
 async function data(db,userId){
  const {results=[]}=await db.prepare('SELECT nominee_id, COUNT(*) AS count FROM votes GROUP BY nominee_id').all();
@@ -26,12 +35,11 @@ export default {
   const origin=request.headers.get('Origin')||'';
   const url=new URL(request.url),path=url.pathname.replace(/\/+$/,'');
   if(request.method==='OPTIONS'){
-   if(origin!==SITE_ORIGIN)return new Response(null,{status:403});
    return new Response(null,{status:204,headers:{
-    'Access-Control-Allow-Origin':SITE_ORIGIN,
+    'Access-Control-Allow-Origin':CORS_ORIGIN,
     'Access-Control-Allow-Methods':'GET,POST,OPTIONS',
-    'Access-Control-Allow-Headers':'Content-Type',
-    'Access-Control-Max-Age':'86400',Vary:'Origin'
+    'Access-Control-Allow-Headers':'Content-Type,Accept',
+    'Access-Control-Max-Age':'86400'
    }});
   }
   if(!env.DB)return reply({ok:false,error:'Не подключена база D1: привязка DB'},503,origin);
@@ -45,7 +53,6 @@ export default {
     return reply(await data(env.DB,url.searchParams.get('userId')),200,origin);
    }
    if(request.method==='POST'&&path==='/api/vote'){
-    if(origin!==SITE_ORIGIN)return reply({ok:false,error:'Недопустимый источник запроса'},403,origin);
     if(Date.now()>=Date.parse(END_AT))return reply({ok:false,error:'Голосование завершено'},403,origin);
     const raw=await request.text();
     if(raw.length>1200)return reply({ok:false,error:'Слишком большой запрос'},413,origin);
