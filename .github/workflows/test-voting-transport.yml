@@ -1,0 +1,24 @@
+name: Test Notibot voting fallback without production votes
+on:
+  push:
+    paths:
+      - 'votes/config.js'
+      - 'cloudflare-voting/worker.js'
+      - 'tests/voting-transport.mjs'
+      - '.github/workflows/test-voting-transport.yml'
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax checks
+        run: |
+          node --check votes/config.js
+          node --check tests/voting-transport.mjs
+          cp cloudflare-voting/worker.js /tmp/nasledie-worker.mjs
+          node --check /tmp/nasledie-worker.mjs
+      - name: Simulated Notibot + D1 integration
+        env:
+          VOTING_WORKER_MODULE: file:///tmp/nasledie-worker.mjs
+        run: node tests/voting-transport.mjs
