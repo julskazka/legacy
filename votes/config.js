@@ -1,8 +1,10 @@
-// GitHub Actions stores votes in this repository, no external worker is used.
-// IMPORTANT: workflow_dispatch requires authentication on the trusted Notibot
-// side. A public GitHub Pages page MUST NOT contain a GitHub token.
-// Until that Notibot-side request is configured, do not claim a vote was saved.
-window.NASLEDIE_VOTE_API_URL = '';
+// Временное решение по запросу владельца: запись напрямую из HTML в GitHub.
+// Вставьте fine-grained GitHub PAT с правом Contents: Read and write
+// только для репозитория julskazka/legacy. БЕЗ него браузер не может записывать
+// votes/votes.json. В публичном файле токен доступен всем посетителям.
+// Если токен будет автоматически отозван GitHub, сохранение прекратится.
+window.NASLEDIE_GITHUB_TOKEN = '';
+
 window.addEventListener('notibot:update', () => {
   if (typeof window.render === 'function') window.render();
 });
