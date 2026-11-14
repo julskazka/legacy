@@ -1,0 +1,54 @@
+name: Save Notibot vote in GitHub
+
+on:
+  workflow_dispatch:
+    inputs:
+      user_id:
+        description: Stable Notibot user ID
+        required: true
+        type: string
+      nominee_id:
+        description: Nominee ID
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  save_vote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 1
+      - name: Apply vote with retry-safe GitHub commits
+        env:
+          VOTE_USER_ID: ${{ inputs.user_id }}
+          VOTE_NOMINEE_ID: ${{ inputs.nominee_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for attempt in $(seq 1 30); do
+            git fetch origin main
+            git reset --hard origin/main
+            node votes/apply-vote.mjs
+            if git diff --quiet -- votes/votes.json; then
+              echo "No new change necessary."
+              exit 0
+            fi
+            git add votes/votes.json
+            git commit -m "Record award vote"
+            if git push origin HEAD:main; then
+              echo "Vote committed to GitHub."
+              exit 0
+            fi
+            echo "Another vote was saved concurrently; retry $attempt/30."
+            sleep $((1 + attempt % 5))
+          done
+          echo "Could not save vote after retries." >&2
+          exit 1
