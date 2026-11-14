@@ -1,6 +1,6 @@
 // Cloudflare Worker + D1: Nasledie XXI voting. One vote per Notibot user.
 const SITE_ORIGIN='https://julskazka.github.io';
-const END_AT='2026-12-06T20:59:00.000Z'; // 6 Dec 2026, 23:59 Moscow
+const END_AT='2026-11-21T20:59:00.000Z'; // 21 Nov 2026, 23:59 Moscow
 function reply(payload,status=200,origin=''){
  const headers={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'};
  if(origin===SITE_ORIGIN){headers['Access-Control-Allow-Origin']=SITE_ORIGIN;headers['Vary']='Origin';}
