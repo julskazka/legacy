@@ -1,0 +1,32 @@
+name: Check voting API (read-only and invalid POST)
+on:
+  push:
+    paths:
+      - '.github/workflows/check-voting-api.yml'
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      API: https://nasledie-voting.gogina-jul.workers.dev
+    steps:
+      - name: GET /api/health
+        run: |
+          curl -fsS --connect-timeout 10 --max-time 25 "$API/api/health" | tee health.json
+          grep -q '"ok":true' health.json
+      - name: GET /api/votes
+        run: |
+          curl -fsS --connect-timeout 10 --max-time 25 "$API/api/votes" | tee votes.json
+          grep -q '"ok":true' votes.json
+      - name: POST invalid user ID (no vote is saved)
+        run: |
+          code=$(curl -sS -o response.json -w '%{http_code}' --connect-timeout 10 --max-time 25 -X POST -H 'Origin: https://julskazka.github.io' -H 'Content-Type: text/plain' --data '{"userId":"invalid","nomineeId":1}' "$API/api/vote")
+          echo "POST HTTP: $code"
+          cat response.json
+          test "$code" = '400'
+      - name: Check sandbox origin (no vote is saved)
+        run: |
+          code=$(curl -sS -o response.json -w '%{http_code}' --connect-timeout 10 --max-time 25 -X POST -H 'Origin: null' -H 'Content-Type: text/plain' --data '{"userId":"invalid","nomineeId":1}' "$API/api/vote")
+          echo "Sandbox POST HTTP: $code"
+          cat response.json
+          test "$code" = '400'
