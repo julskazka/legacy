@@ -10,7 +10,10 @@ window.NASLEDIE_VOTES_API = 'https://nasledie-voting.gogina-jul.workers.dev';
 
   const api = String(win.NASLEDIE_VOTES_API || '').replace(/\/$/, '');
   const nativeFetch = win.fetch.bind(win);
-  const embedded = win.parent !== win;
+  // Один и тот же отказоустойчивый транспорт используем и в обычном
+  // браузере, и в WebView приложения. WebView может быть верхним окном,
+  // поэтому проверка win.parent !== win сама по себе ненадёжна.
+  const embedded = true;
   const cacheKey = 'nasledie_confirmed_vote_state_v2';
 
   function save(payload) {
@@ -196,16 +199,21 @@ window.NASLEDIE_VOTES_API = 'https://nasledie-voting.gogina-jul.workers.dev';
           return result;
         });
       }
-      return Promise.race([
+      return new Promise((resolve, reject) => {
+        let failures = 0;
+        let lastError;
+        const failed = error => {
+          failures += 1;
+          lastError = error;
+          if (failures === 2) reject(lastError);
+        };
         nativeFetch(input, init).then(result => {
           if (!result.ok) throw new Error('HTTP ' + result.status);
           result.clone().json().then(save).catch(() => {});
-          return result;
-        }),
-        new Promise((resolve, reject) => {
-          setTimeout(() => jsonpRead(url, init && init.signal).then(resolve, reject), 700);
-        })
-      ]);
+          resolve(result);
+        }).catch(failed);
+        setTimeout(() => jsonpRead(url, init && init.signal).then(resolve, failed), 150);
+      });
     }
 
     const body = parseVote(init);
