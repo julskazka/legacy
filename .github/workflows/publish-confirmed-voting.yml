@@ -1,0 +1,32 @@
+name: Publish server-confirmed voting (one time)
+on:
+  push:
+    paths: ['.github/workflows/publish-confirmed-voting.yml']
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Bust old client cache
+        shell: python
+        run: |
+          from pathlib import Path
+          path=Path('index.html')
+          source=path.read_text(encoding='utf-8')
+          old='./votes/config.js?v=20261115-synced-top'
+          new='./votes/config.js?v=20261115-server-confirmed'
+          assert source.count(old)==1, 'Unexpected config reference count'
+          path.write_text(source.replace(old,new),encoding='utf-8')
+          Path('.github/workflows/publish-confirmed-voting.yml').unlink()
+      - name: Commit and publish
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/publish-confirmed-voting.yml
+          git diff --cached --check
+          git commit -m "Publish server-confirmed voting"
+          git push
