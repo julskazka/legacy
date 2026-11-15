@@ -159,6 +159,27 @@ window.NASLEDIE_VOTES_API = 'https://nasledie-voting.gogina-jul.workers.dev';
     });
   }
 
+  async function confirmVote(body, signal) {
+    const url = api + '/api/votes?userId=' + encodeURIComponent(body.userId) + '&fresh=' + Date.now();
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      if (signal && signal.aborted) throw new DOMException('Request aborted', 'AbortError');
+      try {
+        const r = embedded
+          ? await jsonpRead(url, signal)
+          : await nativeFetch(url, { cache: 'no-store', signal });
+        const payload = await r.json();
+        if (r.ok && payload && payload.ok && Number(payload.selected) === body.nomineeId) {
+          save(payload);
+          return response(payload);
+        }
+      } catch (error) {
+        if (signal && signal.aborted) throw error;
+      }
+      await new Promise(resolve => setTimeout(resolve, 250));
+    }
+    throw new Error('Сервер не подтвердил голос.');
+  }
+
   win.fetch = function votingFetch(input, init) {
     const url = typeof input === 'string' ? input : input && input.url || '';
     const isRead = url.startsWith(api + '/api/votes?');
@@ -166,18 +187,65 @@ window.NASLEDIE_VOTES_API = 'https://nasledie-voting.gogina-jul.workers.dev';
 
     if (!isRead && !isWrite) return nativeFetch(input, init);
 
-    // В Notibot не ждём, пока заблокированный fetch уйдёт в 12-секундный таймаут.
-    if (embedded && isRead) return jsonpRead(url, init && init.signal);
-    if (embedded && isWrite) {
-      const body = parseVote(init);
-      if (!body) return Promise.reject(new Error('Неверные данные голоса.'));
-      return iframeVote(body, init && init.signal);
+    if (isRead) {
+      // Сначала пробуем обычный fetch. Во встроенном браузере быстро
+      // переключаемся на JSONP, если чтение ответа запрещено окружением.
+      if (!embedded) {
+        return nativeFetch(input, init).then(result => {
+          if (result.ok) result.clone().json().then(save).catch(() => {});
+          return result;
+        });
+      }
+      return Promise.race([
+        nativeFetch(input, init).then(result => {
+          if (!result.ok) throw new Error('HTTP ' + result.status);
+          result.clone().json().then(save).catch(() => {});
+          return result;
+        }),
+        new Promise((resolve, reject) => {
+          setTimeout(() => jsonpRead(url, init && init.signal).then(resolve, reject), 700);
+        })
+      ]);
     }
 
-    return nativeFetch(input, init).then(result => {
-      if (result.ok) result.clone().json().then(save).catch(() => {});
-      return result;
-    });
+    const body = parseVote(init);
+    if (!body) return Promise.reject(new Error('Неверные данные голоса.'));
+
+    if (!embedded) {
+      return nativeFetch(input, init).then(async result => {
+        if (result.ok) {
+          const payload = await result.clone().json().catch(() => null);
+          save(payload);
+        }
+        return result;
+      });
+    }
+
+    // В WebView ответ на cross-origin POST может быть недоступен, хотя сам POST
+    // успешно отправлен. Поэтому отправляем несколькими безопасными способами,
+    // а успех подтверждаем отдельным чтением из D1.
+    try {
+      if (win.navigator && typeof win.navigator.sendBeacon === 'function') {
+        win.navigator.sendBeacon(
+          api + '/api/vote',
+          new Blob([String(init && init.body || '')], { type: 'text/plain' })
+        );
+      }
+    } catch (_) {}
+
+    nativeFetch(input, init).then(async result => {
+      if (result && result.ok) {
+        const payload = await result.clone().json().catch(() => null);
+        save(payload);
+      }
+    }).catch(() => {});
+
+    // Если WebView блокирует обычный POST целиком, пробуем form POST как второй канал.
+    setTimeout(() => {
+      iframeVote(body, init && init.signal).catch(() => {});
+    }, 250);
+
+    return confirmVote(body, init && init.signal);
   };
 })(window);
 
