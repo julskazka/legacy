@@ -18,9 +18,9 @@ jobs:
           path=Path('index.html')
           source=path.read_text(encoding='utf-8')
           early="""<title>НАСЛЕДИЕ XXI века — голосование</title><link rel="preconnect" href="https://nasledie-voting.gogina-jul.workers.dev" crossorigin><script>
-window.__nasledieVotesPromise=fetch('https://nasledie-voting.gogina-jul.workers.dev/api/votes?userId=&fresh='+Date.now(),{cache:'no-store'})
- .then(function(r){return r.ok?r.json():null}).catch(function(){return null});
-</script>"""
+          window.__nasledieVotesPromise=fetch('https://nasledie-voting.gogina-jul.workers.dev/api/votes?userId=&fresh='+Date.now(),{cache:'no-store'})
+           .then(function(r){return r.ok?r.json():null}).catch(function(){return null});
+          </script>"""
           replacements=[
             ("<title>НАСЛЕДИЕ XXI века — голосование</title>",early),
             ("let counts={}; let totalsLoaded=false; let notibotUserId=null; let voteReady=false;","let counts={}; let totalsLoaded=false; let notibotUserId=null; let voteReady=false;\\nwindow.__nasledieVotesPromise?.then(result=>{if(result?.ok&&result.counts){counts=result.counts;totalsLoaded=true;render();}});"),
