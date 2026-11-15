@@ -9,38 +9,57 @@ window.NASLEDIE_VOTES_API = 'https://nasledie-voting.gogina-jul.workers.dev';
   const api = win.NASLEDIE_VOTES_API.replace(/\/$/, '');
   const cacheKey = 'nasledie_confirmed_vote_state_v2';
   const nativeFetch = win.fetch.bind(win);
-  const emptyState = {
-    ok: true,
-    counts: {},
-    selected: null,
-    endAt: '2026-11-21T20:59:00.000Z'
-  };
 
   function save(payload) {
     if (!payload || !payload.ok || !payload.counts) return;
     try { win.localStorage.setItem(cacheKey, JSON.stringify(payload)); } catch (_) {}
   }
 
-  function optimisticWrite(init) {
+  function parseVote(init) {
     let body;
     try { body = JSON.parse(init && init.body || '{}'); } catch (_) { return null; }
     if (!body.userId || !Number.isInteger(body.nomineeId)) return null;
+    return body;
+  }
 
-    let payload = emptyState;
-    try {
-      const stored = JSON.parse(win.localStorage.getItem(cacheKey) || 'null');
-      if (stored && stored.ok && stored.counts) payload = stored;
-    } catch (_) {}
-    payload = {
-      ...payload,
-      ok: true,
-      selected: body.nomineeId
-    };
-    save(payload);
+  function response(payload) {
     return new Response(JSON.stringify(payload), {
       status: 200,
       headers: { 'Content-Type': 'application/json; charset=utf-8' }
     });
+  }
+
+  function firstConfirmed(tasks) {
+    return new Promise((resolve, reject) => {
+      let failed = 0;
+      let lastError;
+      tasks.forEach(task => task.then(resolve, error => {
+        lastError = error;
+        failed += 1;
+        if (failed === tasks.length) reject(lastError);
+      }));
+    });
+  }
+
+  async function pollConfirmation(body, signal) {
+    for (let attempt = 0; attempt < 24; attempt += 1) {
+      if (signal && signal.aborted) throw new DOMException('Request aborted', 'AbortError');
+      try {
+        const result = await nativeFetch(
+          api + '/api/votes?userId=' + encodeURIComponent(body.userId),
+          { cache: 'no-store', signal }
+        );
+        const payload = await result.json();
+        if (result.ok && payload.ok && Number(payload.selected) === body.nomineeId) {
+          save(payload);
+          return response(payload);
+        }
+      } catch (error) {
+        if (signal && signal.aborted) throw error;
+      }
+      await new Promise(resolve => setTimeout(resolve, 250));
+    }
+    throw new Error('Сервер не подтвердил запись голоса.');
   }
 
   win.fetch = async function votingFetch(input, init) {
@@ -49,19 +68,21 @@ window.NASLEDIE_VOTES_API = 'https://nasledie-voting.gogina-jul.workers.dev';
     const isWrite = url === api + '/api/vote';
     if (!isRead && !isWrite) return nativeFetch(input, init);
     if (isWrite && win.navigator && typeof win.navigator.sendBeacon === 'function') {
-      const optimistic = optimisticWrite(init);
-      if (optimistic) {
-        // sendBeacon быстро ставит запись в очередь даже внутри Notibot.
-        // Обычный fetch дублирует её в фоне; повторный UPSERT того же голоса безопасен.
+      const body = parseVote(init);
+      if (body) {
         const queued = win.navigator.sendBeacon(
           api + '/api/vote',
           new Blob([String(init && init.body || '')], { type: 'text/plain' })
         );
         if (queued) {
-          nativeFetch(input, init)
-            .then(result => result.ok ? result.clone().json().then(save) : null)
-            .catch(() => {});
-          return optimistic;
+          const direct = nativeFetch(input, init).then(async result => {
+            const payload = await result.json();
+            if (!result.ok || !payload.ok) throw new Error(payload.error || 'Сервер не сохранил голос.');
+            save(payload);
+            return response(payload);
+          });
+          // Успех показываем только после подтверждения хотя бы одним каналом.
+          return firstConfirmed([direct, pollConfirmation(body, init && init.signal)]);
         }
       }
     }
