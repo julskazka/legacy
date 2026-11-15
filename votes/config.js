@@ -1,5 +1,5 @@
-// Единое серверное хранилище голосов Cloudflare D1.
-window.NASLEDIE_VOTES_API = 'https://nasledie-voting.gogina-jul.workers.dev';
+// Единая база голосов Cloudflare D1 через быстрый шлюз Amvera.
+window.NASLEDIE_VOTES_API = 'https://nasledie-vote-julskazka.msk1.amvera.tech';
 
 // В обычном браузере используем fetch.
 // Внутри Notibot/WebView используем JSONP для чтения и iframe-form для записи:
