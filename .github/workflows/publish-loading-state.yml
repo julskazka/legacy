@@ -1,0 +1,39 @@
+name: Publish accurate loading state (one time)
+on:
+  push:
+    paths: ['.github/workflows/publish-loading-state.yml']
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Do not show false zero totals
+        shell: python
+        run: |
+          from pathlib import Path
+          path=Path('index.html')
+          source=path.read_text(encoding='utf-8')
+          replacements=[
+            ("./votes/config.js?v=20261115-server-confirmed","./votes/config.js?v=20261115-confirmed-loading"),
+            ("let counts={}; let notibotUserId=null; let voteReady=false;","let counts={}; let totalsLoaded=false; let notibotUserId=null; let voteReady=false;"),
+            ("counts=result.counts;","counts=result.counts;totalsLoaded=true;"),
+            ("<div class=\"vote-count\"><strong>\${votes}</strong> \${plural(votes,['голос','голоса','голосов'])}</div>","<div class=\"vote-count\">\${totalsLoaded?'<strong>'+votes+'</strong> '+plural(votes,['голос','голоса','голосов']):'Загрузка…'}</div>"),
+            ("function renderRank(){const leaders=","function renderRank(){if(!totalsLoaded){el('leaders').innerHTML='<div class=\"empty\">Загрузка рейтинга…</div>';return;}const leaders=")
+          ]
+          for old,new in replacements:
+            assert source.count(old)==1, f'Unexpected match count for {old[:50]!r}: {source.count(old)}'
+            source=source.replace(old,new)
+          path.write_text(source,encoding='utf-8')
+          Path('.github/workflows/publish-loading-state.yml').unlink()
+      - name: Commit and publish
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/publish-loading-state.yml
+          git diff --cached --check
+          git commit -m "Show loading state before confirmed totals"
+          git push
