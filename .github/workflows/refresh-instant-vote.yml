@@ -1,0 +1,32 @@
+name: Refresh instant vote client (one time)
+on:
+  push:
+    paths: ['.github/workflows/refresh-instant-vote.yml']
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Publish instant reliable voting
+        shell: python
+        run: |
+          from pathlib import Path
+          path=Path('index.html')
+          source=path.read_text(encoding='utf-8')
+          old='./votes/config.js?v=20261115-reload-cache'
+          new='./votes/config.js?v=20261115-instant-vote'
+          assert source.count(old)==1, 'Unexpected config.js reference count'
+          path.write_text(source.replace(old,new),encoding='utf-8')
+          Path('.github/workflows/refresh-instant-vote.yml').unlink()
+      - name: Commit cache key and remove workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/refresh-instant-vote.yml
+          git diff --cached --check
+          git commit -m "Publish instant reliable voting"
+          git push
