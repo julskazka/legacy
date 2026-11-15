@@ -1,0 +1,67 @@
+name: Optimize voting page load
+on:
+  push:
+    paths:
+      - '.github/workflows/optimize-voting-page.yml'
+permissions:
+  contents: write
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Externalize embedded images from index.html
+        shell: python
+        run: |
+          from pathlib import Path
+          import re, base64, hashlib
+
+          path = Path('index.html')
+          source = path.read_text(encoding='utf-8')
+          assets = Path('assets/embedded')
+          assets.mkdir(parents=True, exist_ok=True)
+
+          pattern = re.compile(r'data:image/(png|jpe?g|webp|gif);base64,([A-Za-z0-9+/=]+)', re.I)
+          extmap = {'jpeg':'jpg','jpg':'jpg','png':'png','webp':'webp','gif':'gif'}
+          created = 0
+
+          def repl(m):
+              nonlocal_state = None
+              kind = m.group(1).lower()
+              raw = base64.b64decode(m.group(2))
+              digest = hashlib.sha256(raw).hexdigest()[:16]
+              ext = extmap[kind]
+              out = assets / f'{digest}.{ext}'
+              if not out.exists():
+                  out.write_bytes(raw)
+              return './' + out.as_posix()
+
+          new_source, count = pattern.subn(repl, source)
+          if count == 0:
+              raise SystemExit('No embedded raster images found; nothing changed')
+
+          path.write_text(new_source, encoding='utf-8')
+          print(f'Externalized {count} embedded image references')
+          print(f'index.html: {len(source)} -> {len(new_source)} chars')
+
+      - name: Bump cache marker and remove one-time workflow
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('20261115-jsfix-1','20261115-fastload-1')
+          p.write_text(s,encoding='utf-8')
+          Path('.github/workflows/optimize-voting-page.yml').unlink()
+
+      - name: Commit optimized page
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html assets/embedded .github/workflows/optimize-voting-page.yml
+          git diff --cached --check
+          git commit -m "Speed up voting page by externalizing embedded images"
+          git push
