@@ -111,6 +111,46 @@ window.NASLEDIE_VOTES_API = 'https://nasledie-voting.gogina-jul.workers.dev';
     });
   }
 
+  function writeViaBeacon(init) {
+    if (!win.navigator || typeof win.navigator.sendBeacon !== 'function') return null;
+    let body;
+    try { body = JSON.parse(init && init.body || '{}'); }
+    catch (_) { return null; }
+    if (!body.userId || !Number.isInteger(body.nomineeId)) return null;
+
+    const sent = win.navigator.sendBeacon(
+      base + '/api/vote',
+      new Blob([JSON.stringify(body)], { type: 'text/plain' })
+    );
+    if (!sent) return null;
+
+    // Notibot may block cross-origin fetch while still allowing beacon + script.
+    // Read the saved value back from D1 before reporting success to the voter.
+    return new Promise((resolve, reject) => {
+      const started = Date.now();
+      const verify = () => {
+        readViaScript(base + '/api/votes?userId=' + encodeURIComponent(body.userId))
+          .then(async result => {
+            const payload = await result.json();
+            if (payload && payload.ok && Number(payload.selected) === body.nomineeId) {
+              resolve(response(payload));
+              return;
+            }
+            if (Date.now() - started < 6500) {
+              setTimeout(verify, 350);
+              return;
+            }
+            reject(new Error('Сервер не подтвердил запись голоса.'));
+          })
+          .catch(error => {
+            if (Date.now() - started < 6500) setTimeout(verify, 350);
+            else reject(error);
+          });
+      };
+      setTimeout(verify, 150);
+    });
+  }
+
   win.fetch = async function votingFetch(input, init) {
     const requestUrl = typeof input === 'string' ? input : input && input.url;
     const url = typeof requestUrl === 'string' ? requestUrl : '';
@@ -130,7 +170,8 @@ window.NASLEDIE_VOTES_API = 'https://nasledie-voting.gogina-jul.workers.dev';
     } catch (error) {
       if (originalSignal && originalSignal.aborted) throw error;
       console.warn('Voting: primary fetch failed, trying embedded-browser fallback.', error);
-      return isVote ? writeViaForm(init || {}) : readViaScript(url, originalSignal);
+      if (!isVote) return readViaScript(url, originalSignal);
+      return writeViaBeacon(init || {}) || writeViaForm(init || {});
     } finally {
       clearTimeout(timer);
       if (originalSignal) originalSignal.removeEventListener('abort', onAbort);
