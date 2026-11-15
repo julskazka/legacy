@@ -23,7 +23,7 @@ window.__nasledieVotesPromise=fetch('https://nasledie-voting.gogina-jul.workers.
 </script>"""
           replacements=[
             ("<title>НАСЛЕДИЕ XXI века — голосование</title>",early),
-            ("let counts={}; let totalsLoaded=false; let notibotUserId=null; let voteReady=false;","let counts={}; let totalsLoaded=false; let notibotUserId=null; let voteReady=false;\nwindow.__nasledieVotesPromise?.then(result=>{if(result?.ok&&result.counts){counts=result.counts;totalsLoaded=true;render();}});"),
+            ("let counts={}; let totalsLoaded=false; let notibotUserId=null; let voteReady=false;","let counts={}; let totalsLoaded=false; let notibotUserId=null; let voteReady=false;\\nwindow.__nasledieVotesPromise?.then(result=>{if(result?.ok&&result.counts){counts=result.counts;totalsLoaded=true;render();}});"),
             ("VOTES_API_URL+'/api/votes?userId='+encodeURIComponent(notibotUserId||''),","VOTES_API_URL+'/api/votes?userId='+encodeURIComponent(notibotUserId||'')+'&fresh='+Date.now(),"),
             ("./votes/config.js?v=20261115-confirmed-loading","./votes/config.js?v=20261115-early-shared")
           ]
