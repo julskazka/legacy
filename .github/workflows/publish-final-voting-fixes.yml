@@ -1,0 +1,40 @@
+name: Publish final voting fixes (one time)
+on:
+  push:
+    paths: ['.github/workflows/publish-final-voting-fixes.yml']
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Fix nominee photos and client version
+        shell: python
+        run: |
+          from pathlib import Path
+          path=Path('index.html')
+          source=path.read_text(encoding='utf-8')
+          old5='{"id":5,"name":"Кира Рябых","nomination":"За вклад в бережную систему","image":"./assets/embedded/161c5228df7c9b0d.webp","display":"./assets/embedded/14bb3f9aa7ec5bbf.webp"}'
+          new5='{"id":5,"name":"Кира Рябых","nomination":"За вклад в бережную систему","image":"./assets/embedded/3d15d30a6bf0c9d6.webp","display":"./assets/embedded/908159d6c49bf7f8.webp"}'
+          old6='{"id":6,"name":"Ульяна Жиглова","nomination":"Вклад в развитие малого бизнеса","image":"./assets/embedded/3d15d30a6bf0c9d6.webp","display":"./assets/embedded/908159d6c49bf7f8.webp"}'
+          new6='{"id":6,"name":"Ульяна Жиглова","nomination":"Вклад в развитие малого бизнеса","image":"./assets/embedded/161c5228df7c9b0d.webp","display":"./assets/embedded/14bb3f9aa7ec5bbf.webp"}'
+          assert source.count(old5)==1
+          assert source.count(old6)==1
+          source=source.replace(old5,new5).replace(old6,new6)
+          oldver='./votes/config.js?v=20261115-webview-confirm-2'
+          newver='./votes/config.js?v=20261115-unified-final'
+          assert source.count(oldver)==1
+          source=source.replace(oldver,newver)
+          path.write_text(source,encoding='utf-8')
+          Path('.github/workflows/publish-final-voting-fixes.yml').unlink()
+      - name: Commit and publish
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/publish-final-voting-fixes.yml
+          git diff --cached --check
+          git commit -m "Fix nominee photos and publish unified voting client"
+          git push
