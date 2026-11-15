@@ -34,11 +34,50 @@ window.NASLEDIE_VOTES_API = 'https://nasledie-voting.gogina-jul.workers.dev';
     });
   }
 
+  function optimisticWrite(init) {
+    let body;
+    try { body = JSON.parse(init && init.body || '{}'); } catch (_) { return null; }
+    if (!body.userId || !Number.isInteger(body.nomineeId)) return null;
+
+    let payload = initialState;
+    try {
+      const stored = JSON.parse(win.localStorage.getItem(cacheKey) || 'null');
+      if (stored && stored.ok && stored.counts) payload = stored;
+    } catch (_) {}
+    payload = {
+      ...payload,
+      ok: true,
+      selected: body.nomineeId
+    };
+    save(payload);
+    return new Response(JSON.stringify(payload), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json; charset=utf-8' }
+    });
+  }
+
   win.fetch = async function votingFetch(input, init) {
     const url = typeof input === 'string' ? input : input && input.url || '';
     const isRead = url.startsWith(api + '/api/votes?');
     const isWrite = url === api + '/api/vote';
     if (!isRead && !isWrite) return nativeFetch(input, init);
+    if (isWrite && win.navigator && typeof win.navigator.sendBeacon === 'function') {
+      const optimistic = optimisticWrite(init);
+      if (optimistic) {
+        // sendBeacon быстро ставит запись в очередь даже внутри Notibot.
+        // Обычный fetch дублирует её в фоне; повторный UPSERT того же голоса безопасен.
+        const queued = win.navigator.sendBeacon(
+          api + '/api/vote',
+          new Blob([String(init && init.body || '')], { type: 'text/plain' })
+        );
+        if (queued) {
+          nativeFetch(input, init)
+            .then(result => result.ok ? result.clone().json().then(save) : null)
+            .catch(() => {});
+          return optimistic;
+        }
+      }
+    }
     try {
       const result = await nativeFetch(input, init);
       if (result.ok) result.clone().json().then(save).catch(() => {});
