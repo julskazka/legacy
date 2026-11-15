@@ -1,18 +1,17 @@
 // Единое серверное хранилище голосов Cloudflare D1.
 window.NASLEDIE_VOTES_API = 'https://nasledie-voting.gogina-jul.workers.dev';
 
-// Notibot иногда обрывает повторный GET после перезагрузки страницы.
-// Сохраняем только последний подтверждённый ответ со счётчиками и используем
-// его при сетевой ошибке, чтобы уже записанные голоса не выглядели пропавшими.
+// Храним последний подтверждённый ответ только для мгновенного подтверждения
+// отправки. Общий рейтинг всегда приходит из единой серверной базы.
 (function keepLastConfirmedVoteState(win) {
   'use strict';
   if (typeof win.fetch !== 'function') return;
   const api = win.NASLEDIE_VOTES_API.replace(/\/$/, '');
-  const cacheKey = 'nasledie_confirmed_vote_state_v1';
+  const cacheKey = 'nasledie_confirmed_vote_state_v2';
   const nativeFetch = win.fetch.bind(win);
-  const initialState = {
+  const emptyState = {
     ok: true,
-    counts: { '2': 1 },
+    counts: {},
     selected: null,
     endAt: '2026-11-21T20:59:00.000Z'
   };
@@ -22,24 +21,12 @@ window.NASLEDIE_VOTES_API = 'https://nasledie-voting.gogina-jul.workers.dev';
     try { win.localStorage.setItem(cacheKey, JSON.stringify(payload)); } catch (_) {}
   }
 
-  function cachedResponse() {
-    let payload = initialState;
-    try {
-      const stored = JSON.parse(win.localStorage.getItem(cacheKey) || 'null');
-      if (stored && stored.ok && stored.counts) payload = stored;
-    } catch (_) {}
-    return new Response(JSON.stringify(payload), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json; charset=utf-8' }
-    });
-  }
-
   function optimisticWrite(init) {
     let body;
     try { body = JSON.parse(init && init.body || '{}'); } catch (_) { return null; }
     if (!body.userId || !Number.isInteger(body.nomineeId)) return null;
 
-    let payload = initialState;
+    let payload = emptyState;
     try {
       const stored = JSON.parse(win.localStorage.getItem(cacheKey) || 'null');
       if (stored && stored.ok && stored.counts) payload = stored;
@@ -83,7 +70,8 @@ window.NASLEDIE_VOTES_API = 'https://nasledie-voting.gogina-jul.workers.dev';
       if (result.ok) result.clone().json().then(save).catch(() => {});
       return result;
     } catch (error) {
-      if (isRead) return cachedResponse();
+      // Не подменяем общий рейтинг локальными данными. Код страницы оставит
+      // последний показанный результат и повторит GET через три секунды.
       throw error;
     }
   };
