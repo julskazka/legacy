@@ -1,4 +1,4 @@
-// Единая база голосов Cloudflare D1 через быстрый шлюз Amvera.
+// Единая база голосов Cloudflare D1 в локальном хранилище Amvera.
 window.NASLEDIE_VOTES_API = 'https://nasledie-vote-julskazka.msk1.amvera.tech';
 
 // В обычном браузере используем fetch.
@@ -13,7 +13,7 @@ window.NASLEDIE_VOTES_API = 'https://nasledie-vote-julskazka.msk1.amvera.tech';
   // Один и тот же отказоустойчивый транспорт используем и в обычном
   // браузере, и в WebView приложения. WebView может быть верхним окном,
   // поэтому проверка win.parent !== win сама по себе ненадёжна.
-  const embedded = true;
+  const embedded = false;
   const cacheKey = 'nasledie_confirmed_vote_state_v2';
 
   function save(payload) {
