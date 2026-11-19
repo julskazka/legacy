@@ -32,47 +32,37 @@ def initialize():
             )
         """)
         db.execute("CREATE INDEX IF NOT EXISTS votes_nominee_idx ON votes(nominee_id)")
-        db.execute("""
-            CREATE TABLE IF NOT EXISTS game_votes (
-                user_id TEXT PRIMARY KEY,
-                nominee_id INTEGER NOT NULL CHECK(nominee_id BETWEEN 1 AND 50),
-                updated_at TEXT NOT NULL
-            )
-        """)
-        db.execute("CREATE INDEX IF NOT EXISTS game_votes_nominee_idx ON game_votes(nominee_id)")
 
 
-def snapshot(user_id="", game=False):
-    table = "game_votes" if game else "votes"
+def snapshot(user_id=""):
     with connect() as db:
         counts = {str(row[0]): row[1] for row in db.execute(
-            f"SELECT nominee_id, COUNT(*) FROM {table} GROUP BY nominee_id"
+            "SELECT nominee_id, COUNT(*) FROM votes GROUP BY nominee_id"
         )}
         selected = None
         if user_id:
-            row = db.execute(f"SELECT nominee_id FROM {table} WHERE user_id = ?", (user_id,)).fetchone()
+            row = db.execute("SELECT nominee_id FROM votes WHERE user_id = ?", (user_id,)).fetchone()
             selected = row[0] if row else None
     return {"ok": True, "counts": counts, "selected": selected, "endAt": END_AT}
 
 
-def save_vote(user_id, nominee_id, game=False):
+def save_vote(user_id, nominee_id):
     if not user_id or len(user_id) > 200:
         raise ValueError("Invalid userId")
     nominee_id = int(nominee_id)
     if nominee_id < 1 or nominee_id > 50:
         raise ValueError("Invalid nomineeId")
     now = datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
-    table = "game_votes" if game else "votes"
     with connect() as db:
         db.execute("BEGIN IMMEDIATE")
-        db.execute(f"""
-            INSERT INTO {table}(user_id, nominee_id, updated_at) VALUES (?, ?, ?)
+        db.execute("""
+            INSERT INTO votes(user_id, nominee_id, updated_at) VALUES (?, ?, ?)
             ON CONFLICT(user_id) DO UPDATE SET
                 nominee_id = excluded.nominee_id,
                 updated_at = excluded.updated_at
         """, (user_id, nominee_id, now))
         db.commit()
-    return snapshot(user_id, game=game)
+    return snapshot(user_id)
 
 
 class VotingServer(BaseHTTPRequestHandler):
@@ -96,19 +86,17 @@ class VotingServer(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed = urlparse(self.path)
         query = parse_qs(parsed.query)
-        game = parsed.path.startswith("/game/")
-        path = parsed.path[5:] if game else parsed.path
         try:
-            if path == "/api/health":
+            if parsed.path == "/api/health":
                 self.json_reply(200, {"ok": True, "database": "amvera-sqlite", "endAt": END_AT})
-            elif path == "/api/votes":
-                self.json_reply(200, snapshot((query.get("userId") or [""])[0], game=game))
-            elif path == "/api/votes.js":
+            elif parsed.path == "/api/votes":
+                self.json_reply(200, snapshot((query.get("userId") or [""])[0]))
+            elif parsed.path == "/api/votes.js":
                 callback = (query.get("callback") or [""])[0]
                 if not CALLBACK_RE.fullmatch(callback):
                     self.json_reply(400, {"ok": False, "error": "Invalid callback"})
                     return
-                payload = json.dumps(snapshot((query.get("userId") or [""])[0], game=game), ensure_ascii=False, separators=(",", ":"))
+                payload = json.dumps(snapshot((query.get("userId") or [""])[0]), ensure_ascii=False, separators=(",", ":"))
                 self.reply(200, f"{callback}({payload});".encode(), "application/javascript; charset=utf-8")
             else:
                 self.json_reply(404, {"ok": False, "error": "Route not found"})
@@ -118,8 +106,6 @@ class VotingServer(BaseHTTPRequestHandler):
 
     def do_POST(self):
         parsed = urlparse(self.path)
-        game = parsed.path.startswith("/game/")
-        path = parsed.path[5:] if game else parsed.path
         length = int(self.headers.get("Content-Length", "0") or "0")
         if length > 8192:
             self.json_reply(413, {"ok": False, "error": "Request too large"})
@@ -132,10 +118,10 @@ class VotingServer(BaseHTTPRequestHandler):
                 data = {key: values[0] for key, values in form.items()}
             else:
                 data = json.loads(raw.decode("utf-8") or "{}")
-            if path == "/api/vote":
-                self.json_reply(200, save_vote(str(data.get("userId", "")), data.get("nomineeId"), game=game))
-            elif path == "/api/vote-form":
-                result = save_vote(str(data.get("userId", "")), data.get("nomineeId"), game=game)
+            if parsed.path == "/api/vote":
+                self.json_reply(200, save_vote(str(data.get("userId", "")), data.get("nomineeId")))
+            elif parsed.path == "/api/vote-form":
+                result = save_vote(str(data.get("userId", "")), data.get("nomineeId"))
                 request_id = str(data.get("requestId", ""))[:96]
                 message = json.dumps({"source": "nasledie-voting", "requestId": request_id, "payload": result}, ensure_ascii=False)
                 page = "<!doctype html><meta charset=utf-8><script>parent.postMessage(%s,'*')</script>" % json.dumps(message)
