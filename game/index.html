@@ -1,0 +1,331 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#231917"><meta name="description" content="Голосование за значимые проекты премии НАСЛЕДИЕ XXI века"><title>НАСЛЕДИЕ XXI века — голосование</title><link rel="preconnect" href="https://nasledie-vote-julskazka.msk1.amvera.tech" crossorigin><script>
+window.__nasledieVotesPromise=fetch('https://nasledie-vote-julskazka.msk1.amvera.tech/game/api/votes?userId=&fresh='+Date.now(),{cache:'no-store'})
+ .then(function(r){return r.ok?r.json():null}).catch(function(){return null});
+</script><style>
+:root{color-scheme:dark;--bg:#231917;--layer:#2b201c;--layer2:#32241e;--line:#6f5743;--line2:rgba(228,193,150,.20);--gold:#d6ae7b;--gold2:#f2dcbb;--soft:#ddc8af;--muted:#b5a394;--btn:#d6ac77;--ink:#241a16;--shadow:0 12px 32px rgba(7,3,2,.21)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#17100e;color:#f3e9da;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}button,input,select{font:inherit}button{cursor:pointer;-webkit-tap-highlight-color:transparent}a{color:inherit}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
+.app{max-width:480px;min-height:100dvh;margin:auto;overflow:hidden;background:var(--bg);position:relative;padding-bottom:calc(68px + env(safe-area-inset-bottom, 0px));box-shadow:0 0 0 1px rgba(225,190,144,.12),0 30px 80px #080605}
+.hero{position:relative;isolation:isolate;text-align:center;padding:27px 21px 19px;background:radial-gradient(ellipse at 70% 30%,#493126 0%,#30221b 45%,#251a17 85%)}.hero:before{content:'';position:absolute;inset:8px -64px auto;z-index:-1;height:238px;border:1px solid rgba(235,193,140,.14);border-radius:50% 50% 0 0 / 65% 65% 0 0;box-shadow:inset 0 0 0 18px rgba(222,177,119,.015),0 -1px 0 rgba(232,193,143,.06);pointer-events:none}.hero:after{content:'';z-index:-1;pointer-events:none;position:absolute;inset:4px 0 0;background:linear-gradient(180deg,rgba(35,25,23,.90),rgba(35,25,23,.99));opacity:.94}.gold-veil{position:absolute;z-index:-2;inset:0;background-image:url('../assets/embedded/f2443bbe98f94970.webp');background-position:center 45%;background-size:cover;opacity:.25;filter:blur(24px)}.kicker{font-size:10px;letter-spacing:.25em;color:var(--soft);margin:9px 0 9px;text-transform:uppercase}.main-title{margin:0;color:var(--gold2);font:normal clamp(35px,10vw,50px)/1.06 Georgia,'Times New Roman',serif;letter-spacing:.07em}.ornament{display:flex;align-items:center;justify-content:center;gap:9px;color:var(--gold);margin:11px auto 12px;width:155px}.ornament:before,.ornament:after{content:'';height:1px;flex:1;background:linear-gradient(to right,transparent,var(--gold))}.ornament:after{transform:rotate(180deg)}.hero h2{font:normal 23px/1.17 Georgia,serif;color:var(--gold2);margin:0 auto 12px;max-width:310px}.lead{line-height:1.55;color:#dfd0bf;font-size:13px;margin:0 auto 16px;max-width:340px}.countdown{border:1px solid rgba(223,184,133,.34);border-radius:15px;background:rgba(23,14,11,.37);padding:12px 13px 13px}.countdown-title{font-size:10px;color:#cebaa3;letter-spacing:.11em;text-transform:uppercase;margin-bottom:8px}.digits{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.digit{min-width:0}.digit:not(:last-child){border-right:1px solid rgba(234,204,168,.15)}.digit b{display:block;font:normal 25px/1.1 Georgia,serif;color:var(--gold2);font-variant-numeric:tabular-nums}.digit span{font-size:10px;color:#c6b5a6}.ended{color:var(--gold2);font-size:13px;padding:7px}
+.tabs{display:grid;grid-template-columns:1fr .85fr 1fr;padding:9px 14px calc(9px + env(safe-area-inset-bottom, 0px));gap:6px;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:20;background:rgba(35,25,23,.975);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--line2);box-shadow:0 -10px 30px rgba(12,7,5,.33)}.tab{border:1px solid transparent;border-radius:99px;background:transparent;color:#d3c1b0;min-height:39px;padding:8px 3px;font-size:12px}.tab.active{color:#2d1f18;background:linear-gradient(140deg,#ebd2aa,#cfa575);font-weight:650;box-shadow:none}.page{display:none;padding:18px 16px 35px;min-height:410px}.page.active{display:block}.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:13px}.section-head h3{margin:0;color:var(--gold2);font:normal 26px/1.12 Georgia,serif}.section-head span{font-size:11px;color:var(--muted);white-space:nowrap}.search-wrap{display:flex;gap:9px;align-items:center;border:1px solid rgba(222,186,146,.34);border-radius:12px;padding:0 12px;min-height:45px;background:rgba(255,255,255,.018)}.search-icon{font-size:22px;color:var(--gold);font-family:Georgia,serif}.search-wrap input{width:100%;background:transparent;border:0;outline:0;color:#f6e8d7;font-size:13px;min-width:0}.search-wrap input::placeholder{color:#9f8c7b}.controls{display:flex;gap:8px;margin:9px 0 15px}.controls select{appearance:none;-webkit-appearance:none;width:100%;min-width:0;border:1px solid rgba(222,186,146,.24);border-radius:10px;min-height:39px;padding:0 31px 0 12px;color:#d8c6b4;background:#2d211c url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23cfad82' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 9px center;font-size:12px}.controls #sort{width:43%;flex-shrink:0}
+.cards{display:grid;gap:10px}.nominee{border:1px solid rgba(211,169,117,.32);border-radius:15px;background:linear-gradient(135deg,rgba(66,44,33,.54),rgba(43,29,25,.78));padding:12px;box-shadow:var(--shadow)}.card-top{display:flex;gap:12px;min-width:0}.portrait{width:105px;height:105px;object-fit:cover;flex:0 0 105px;border-radius:10px;border:1px solid rgba(215,168,101,.20);background:#271b17;display:block}.content{min-width:0;flex:1}.eyebrow{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#bda385;margin-top:1px}.name{font:normal 20px/1.12 Georgia,serif;color:#f3dfbf;margin:6px 0 5px;overflow-wrap:anywhere}.nomination{color:#d7c4ad;line-height:1.35;font-size:11.5px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.nomination.expanded{-webkit-line-clamp:unset;display:block}.readmore{font-size:11px;border:0;padding:7px 0 0;color:var(--gold);background:none;text-decoration:underline;text-underline-offset:3px}.card-bottom{margin-top:11px;border-top:1px solid rgba(237,208,176,.12);padding-top:11px;display:flex;justify-content:space-between;align-items:center;gap:10px}.vote-count{font-size:12px;color:#d5c1a9;white-space:nowrap}.vote-count strong{font:normal 19px Georgia,serif;color:var(--gold2);margin-right:4px}.vote-btn{border:0;min-height:39px;border-radius:100px;background:linear-gradient(125deg,#ecd3ab,#d6aa74);color:#291a14;font-weight:700;font-size:12px;padding:0 18px;min-width:145px;transition:transform .15s}.vote-btn:active,.btn:active{transform:scale(.98)}.vote-btn.chosen{background:transparent;border:1px solid rgba(234,203,166,.6);color:var(--gold2)}.vote-btn:disabled{opacity:.55;cursor:default}.more{display:block;margin:19px auto 0;min-width:205px;border-radius:99px;border:1px solid rgba(220,181,136,.50);background:none;color:var(--gold2);padding:11px 18px;font-size:12px}.empty{border:1px solid var(--line2);border-radius:14px;padding:28px 18px;text-align:center;color:var(--muted);line-height:1.5}
+.ranking-sub,.rules-lead{color:var(--muted);line-height:1.55;margin:0 0 15px;font-size:13px}.rank-card{display:flex;gap:12px;align-items:center;padding:11px 3px;border-bottom:1px solid var(--line2)}.rank-place{width:25px;text-align:center;font:normal 22px Georgia,serif;color:var(--gold)}.rank-photo{height:53px;width:53px;object-fit:cover;border-radius:9px;flex-shrink:0}.rank-body{flex:1;min-width:0}.rank-name{font:normal 16px Georgia,serif;color:var(--gold2);margin-bottom:3px}.rank-votes{font-size:12px;color:var(--soft)}.rank-open{background:transparent;border:1px solid rgba(218,173,118,.44);color:var(--gold2);border-radius:18px;padding:8px 9px;font-size:11px}.disclaimer{margin-top:18px;padding:12px 13px;border-left:2px solid #a78360;background:rgba(255,255,255,.025);line-height:1.5;color:#bea99a;font-size:12px}.rule{border-bottom:1px solid var(--line2);padding:14px 0;color:#eadaca}.rule strong{color:var(--gold2)}.rule p{margin:5px 0 0;line-height:1.55;color:#c9b4a4}.end-note{text-align:center;color:#948170;font-size:11px;padding:5px 18px 25px;line-height:1.5}
+.overlay{display:none;position:fixed;inset:0;background:rgba(9,6,5,.74);z-index:30;align-items:end;justify-content:center;padding:14px}.overlay.open{display:flex}.dialog{max-width:460px;width:100%;border:1px solid rgba(238,204,162,.45);border-radius:20px;background:linear-gradient(165deg,#36251e,#211714);box-shadow:0 24px 60px rgba(0,0,0,.6);padding:23px 19px 19px;text-align:center}.dialog h3{margin:6px auto 12px;color:var(--gold2);font:normal 27px Georgia,serif;line-height:1.14}.dialog p{color:#d6c4b4;line-height:1.56;font-size:13px}.dialog-name{font-size:19px!important;color:var(--gold2)!important;font-family:Georgia,serif}.btn{border:0;background:linear-gradient(130deg,#ead2a9,#ca9f6e);color:#251814;border-radius:30px;min-height:47px;width:100%;font-weight:700;padding:10px 15px;text-decoration:none;display:flex;align-items:center;justify-content:center;margin-top:12px}.btn.secondary{background:transparent;color:#dec7ae;border:1px solid rgba(224,187,142,.35)}.close-x{float:right;margin-top:-8px;margin-right:-6px;border:0;background:none;color:var(--gold2);font-size:25px;line-height:1;padding:6px}.thanks-symbol{color:var(--gold2);width:49px;height:49px;border:1px solid rgba(232,194,150,.7);border-radius:50%;display:grid;place-items:center;margin:3px auto 10px;font-size:26px}.dialog .small-note{font-size:11px;color:#b49b87}.photo-view{max-width:460px;width:100%;position:relative}.photo-view img{display:block;width:100%;border-radius:13px;max-height:78dvh;object-fit:contain}.photo-view button{position:absolute;right:9px;top:9px;background:rgba(25,18,15,.85);border:1px solid var(--line);color:#fff;width:35px;height:35px;border-radius:50%;font-size:23px}
+@media(max-width:355px){.hero h2{font-size:21px}.page{padding-inline:12px}.card-top{gap:9px}.portrait{width:88px;height:88px;flex-basis:88px}.name{font-size:18px}.vote-btn{min-width:128px;padding:0 11px}.vote-count{font-size:11px}.vote-count strong{font-size:17px}.controls{gap:6px}}
+@media(min-width:600px){.app{margin:25px auto;border:1px solid rgba(239,209,179,.22);border-radius:24px}.overlay{align-items:center}.dialog{padding:29px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+
+/* 2026-11-14 — Mobile refinement v3: agreed luxury palette, original award imagery */
+.app{padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))}
+.hero{padding:15px 20px 16px;background:linear-gradient(165deg,#30231e 0%,#231917 72%);overflow:hidden}
+.hero:before{display:none}
+.hero:after{z-index:-1;inset:0;background:linear-gradient(180deg,rgba(35,25,23,.62) 0%,rgba(35,25,23,.90) 63%,#231917 100%);opacity:1}
+.hero-arches{position:absolute;inset:0;z-index:-2;background-image:url("../assets/embedded/64deabc8aa35b836.webp");background-size:cover;background-position:center top;opacity:.31;filter:saturate(.65)}
+.heritage-emblem{width:74px;height:72px;margin:0 auto 5px;display:flex;align-items:center;justify-content:center;overflow:visible}
+.heritage-emblem img{width:74px;height:72px;object-fit:contain;display:block}
+.kicker{margin:3px 0 6px;font-size:9px;letter-spacing:.24em}
+.main-title{font-size:clamp(31px,9vw,43px);letter-spacing:.065em}
+.ornament{margin:5px auto 7px;width:135px;font-size:11px}
+.hero h2{font-size:clamp(18px,5.1vw,23px);margin:0 auto 9px;max-width:340px}
+.lead{font-size:12px;line-height:1.45;margin-bottom:13px;max-width:340px}
+.countdown{border:1px solid rgba(223,184,133,.31);border-radius:10px;background:rgba(32,22,18,.38);padding:8px 10px;display:flex;align-items:center;gap:8px;text-align:left;min-height:48px}
+.countdown-title{width:33%;max-width:119px;flex:0 0 33%;font-size:9px;letter-spacing:.015em;line-height:1.3;text-transform:none;margin:0;color:#dfcfb8}
+.digits{flex:1;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;text-align:center}
+.digit{min-width:0}.digit:not(:last-child){border-right:1px solid rgba(234,204,168,.13)}
+.digit b{font-size:18px;line-height:1.03}.digit span{font-size:8px;line-height:1.15;display:block;margin-top:2px}
+.page{padding:17px 14px 32px}.section-head{margin-bottom:11px}.section-head h3{font-size:24px}
+.find-row{display:flex;align-items:stretch;gap:8px;margin-bottom:14px;min-width:0}
+.find-row .search-wrap{flex:1;min-width:0;min-height:43px;border-color:rgba(222,186,146,.32);padding:0 9px}
+.find-row .search-wrap input{font-size:12px}.find-row .search-icon{font-size:19px;line-height:1}
+.find-row .controls{display:flex;margin:0;flex:0 0 115px;min-width:0}
+.find-row .controls select,.find-row .controls #sort{height:43px;min-height:43px;width:100%;flex:1;padding:0 27px 0 10px;font-size:11px;border-color:rgba(222,186,146,.32)}
+.cards{gap:11px}.nominee{padding:10px;border-radius:14px;background:linear-gradient(130deg,rgba(63,42,32,.63),rgba(41,28,24,.91));border-color:rgba(214,174,123,.37)}
+.card-top{gap:12px;align-items:flex-start}
+.portrait-frame{width:124px;height:132px;flex:0 0 124px;border-radius:11px;overflow:hidden;background:#b99056;border:1px solid rgba(229,187,118,.38);position:relative}
+.portrait{width:100%;height:100%;display:block;max-width:none;object-fit:cover;object-position:center;transform:scale(1.46) translateY(8%);border:0;border-radius:0;background:transparent;cursor:zoom-in}
+.content{min-width:0;flex:1}.eyebrow{margin-top:2px;font-size:10px;letter-spacing:.06em;color:#c9a87b;text-transform:none}
+.name{font-size:18px;line-height:1.14;margin:5px 0 7px;overflow-wrap:normal;hyphens:none}
+.nomination{display:block!important;-webkit-line-clamp:unset!important;overflow:visible!important;font-size:12px;line-height:1.37;color:#e0cfbc;overflow-wrap:break-word}
+.readmore{display:none!important}
+.card-bottom{margin-top:10px;padding-top:10px}
+.vote-btn{min-height:40px;min-width:139px;border-radius:10px;font-size:12px;background:linear-gradient(130deg,#ead0a6,#cda172)}
+.vote-count strong{font-size:19px}
+.tabs{grid-template-columns:repeat(3,1fr);gap:8px;padding:7px 12px calc(8px + env(safe-area-inset-bottom,0px));border-top:1px solid rgba(226,186,134,.47);background:rgba(34,23,19,.98);box-shadow:0 -8px 20px rgba(0,0,0,.32)}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:55px;border-radius:12px;font-size:12px;line-height:1.15;color:#dbc8b5;border:1px solid rgba(221,186,145,.14);padding:6px 3px}
+.tab svg{width:19px;height:19px;display:block}.tab.active{background:#e8cfaa;color:#2e1e18;border-color:#e8cfaa;font-weight:700}
+@media(max-width:355px){.page{padding-inline:10px}.hero{padding-inline:14px}.portrait-frame{width:113px;height:125px;flex-basis:113px}.card-top{gap:10px}.name{font-size:16px}.nomination{font-size:11px}.vote-btn{min-width:125px;padding:0 12px}.find-row .controls{flex-basis:106px}.find-row{gap:6px}.tab{font-size:11px}}
+
+
+/* НАСЛЕДИЕ · Вариант карточек: матовое стекло + акцент на оригинальном фото */
+.cards{gap:11px}
+.nominee{
+ display:grid;grid-template-columns:minmax(0,43%) minmax(0,1fr);align-items:start;
+ gap:11px;padding:10px;border-radius:17px;min-width:0;
+ background:linear-gradient(135deg,rgba(122,91,74,.27),rgba(64,43,35,.53));
+ -webkit-backdrop-filter:blur(13px);backdrop-filter:blur(13px);
+ border:1px solid rgba(240,215,184,.28);
+ box-shadow:0 7px 23px rgba(13,7,5,.10),inset 0 1px 0 rgba(247,217,180,.055);
+}
+.portrait-button{display:block;width:100%;border:0;padding:0;background:transparent;line-height:0;min-width:0;cursor:zoom-in;border-radius:0;box-shadow:none;overflow:visible}
+.portrait{width:100%;height:auto;aspect-ratio:1/1;max-width:100%;object-fit:contain;object-position:center;transform:none;display:block;border:0;border-radius:0;background:transparent;filter:none;box-shadow:none}
+.content{min-width:0;display:flex;flex-direction:column;align-items:stretch;gap:0;align-self:stretch}
+.eyebrow{font-size:10px;letter-spacing:.02em;color:#d6af7d;text-transform:none;margin:0 0 5px;line-height:1.2}
+.name{font:normal clamp(18px,5.25vw,22px)/1.08 Georgia,'Times New Roman',serif;color:#f2dcbb;margin:0 0 7px;overflow-wrap:break-word;hyphens:none}
+.nomination{display:block!important;overflow:visible!important;-webkit-line-clamp:unset!important;max-height:none!important;white-space:normal;color:#e4d2c0;font-size:11.5px;line-height:1.38;overflow-wrap:break-word}
+.card-actions{display:flex;flex-direction:column;align-items:stretch;gap:9px;margin-top:12px}
+.vote-count{color:#d6b58d;font-size:12px;white-space:normal;line-height:1.2}
+.vote-count strong{color:#f2dcbb;font:normal 19px/1 Georgia,'Times New Roman',serif;margin-right:2px}
+.vote-btn{width:100%;min-width:0;min-height:43px;padding:10px 6px;border-radius:11px;border:1px solid rgba(240,214,179,.68);
+ background:linear-gradient(120deg,#eed8b6,#d6b082);color:#271a14;font-size:12px;line-height:1.1;font-weight:700}
+.vote-btn.chosen{background:rgba(248,225,194,.08);color:#f2dcbb;border-color:rgba(240,214,179,.54)}
+/* Light translucent glass version of approved bottom nav #4 */
+.app{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
+.tabs{position:fixed;bottom:calc(10px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);
+ width:calc(100% - 22px);max-width:452px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;
+ padding:8px 7px;border:1px solid rgba(244,218,187,.43);border-radius:23px;
+ background:rgba(148,116,97,.28);-webkit-backdrop-filter:blur(22px) saturate(115%);backdrop-filter:blur(22px) saturate(115%);
+ box-shadow:0 4px 20px rgba(11,7,6,.17),inset 0 1px 0 rgba(255,238,212,.12);overflow:hidden}
+.tab{min-width:0;min-height:57px;padding:4px 2px 7px;border:0;border-radius:0;background:none;color:#e5d0bd;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;position:relative;font-size:11px;line-height:1.15;font-weight:500}
+.tab:not(:last-child):after{content:'';position:absolute;right:0;top:14%;height:63%;width:1px;background:rgba(235,207,171,.25)}
+.tab svg{width:21px;height:21px;flex:0 0 21px;stroke-width:1.5}
+.tab.active{background:none;color:#fff0d8;border:0;font-weight:650;box-shadow:none}
+.tab.active:before{content:'';position:absolute;left:25%;right:25%;bottom:0;height:2px;border-radius:3px;background:#e8c394}
+.rank-photo{object-fit:contain;background:transparent;border-radius:0}
+@media(max-width:370px){.nominee{grid-template-columns:minmax(0,42%) minmax(0,1fr);gap:9px;padding:8px}.name{font-size:17px}.eyebrow{font-size:9px}.nomination{font-size:11px}.vote-btn{font-size:11px;padding:9px 4px;min-height:41px}}
+@media(max-width:333px){.nominee{grid-template-columns:minmax(0,40%) minmax(0,1fr);gap:7px;padding:7px}.name{font-size:16px}.nomination{font-size:10.5px}.vote-count strong{font-size:17px}.vote-btn{font-size:10.5px}}
+
+/* v5 — revised, balanced translucent mobile bottom navigation */
+.app{padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))}
+.tabs{
+  box-sizing:border-box;position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom,0px));
+  transform:translateX(-50%);z-index:20;width:calc(100% - 24px);max-width:456px;
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:0;
+  padding:8px 7px 7px;border:1px solid rgba(240,211,174,.46);
+  border-radius:22px;background:rgba(88,64,52,.68);
+  -webkit-backdrop-filter:blur(24px) saturate(110%);backdrop-filter:blur(24px) saturate(110%);
+  box-shadow:0 8px 28px rgba(11,6,5,.24),inset 0 1px 0 rgba(255,238,216,.12);
+  overflow:hidden;
+}
+.tab{
+  appearance:none;box-sizing:border-box;position:relative;min-width:0;width:100%;height:59px;min-height:59px;
+  display:grid;grid-template-columns:1fr;grid-template-rows:24px 18px 3px;
+  align-content:center;justify-items:center;align-items:center;gap:2px;
+  margin:0;padding:3px 2px 1px;
+  background:transparent;border:0;border-radius:0;box-shadow:none;
+  color:#ddc5af;font-size:12px;font-weight:500;line-height:1;text-align:center;
+}
+.tab svg{grid-row:1;width:21px;height:21px;display:block;margin:0;stroke-width:1.6;flex:none}
+.tab span{grid-row:2;display:block;line-height:18px;white-space:nowrap;letter-spacing:0}
+.tab:not(:last-child):after{
+  content:'';position:absolute;top:12px;bottom:12px;right:0;width:1px;height:auto;
+  background:rgba(242,221,197,.23)
+}
+.tab.active{background:transparent;border:0;box-shadow:none;color:#f5dfbf;font-weight:650}
+.tab.active:before{
+  content:'';position:static;grid-row:3;display:block;align-self:end;
+  width:52px;max-width:64%;height:2px;border-radius:3px;background:#d9b181;
+}
+.tab:focus-visible{outline:2px solid #e8c394;outline-offset:-4px;border-radius:11px}
+@media(max-width:355px){.tabs{padding-inline:5px}.tab{font-size:11.5px}.tab svg{width:20px;height:20px}}
+
+/* v6 – mobile slim frosted bottom bar, retains the chosen design */
+.app{padding-bottom:calc(69px + env(safe-area-inset-bottom,0px))}
+.tabs{
+  box-sizing:border-box;left:50%;bottom:calc(6px + env(safe-area-inset-bottom,0px));
+  width:calc(100% - 22px);max-width:444px;border-radius:17px;
+  padding:4px 6px 4px;gap:0;
+  background:rgba(118,88,74,.39);border:1px solid rgba(240,211,179,.46);
+  box-shadow:0 6px 16px rgba(12,8,6,.18), inset 0 1px 0 rgba(252,237,214,.10);
+  -webkit-backdrop-filter:blur(19px) saturate(112%);
+  backdrop-filter:blur(19px) saturate(112%);
+}
+.tab{
+  box-sizing:border-box;display:grid;grid-template-columns:1fr;
+  grid-template-rows:18px 14px 2px;row-gap:0;
+  width:100%;height:41px;min-height:41px;
+  padding:3px 2px 1px;font-size:10.5px;line-height:1;
+  align-content:center;align-items:center;justify-items:center;
+}
+.tab svg{grid-row:1;width:17px;height:17px;stroke-width:1.65}
+.tab span{grid-row:2;font-size:10.5px;line-height:14px}
+.tab:not(:last-child):after{top:8px;bottom:8px;height:auto}
+.tab.active:before{grid-row:3;max-width:44%;width:38px;height:2px}
+@media(max-width:355px){.tab{height:40px;min-height:40px}.tab span{font-size:10px}}
+/* Clear test-only status; no permanent votes exist yet. */
+.preview-status{margin:0 0 12px;padding:8px 10px;border:1px solid rgba(240,211,179,.24);border-radius:9px;font-size:11px;line-height:1.4;color:#e1cbb5;background:rgba(66,47,38,.45)}
+</style></head><body><main class="app">
+
+<section class="hero"><div class="hero-arches" aria-hidden="true"></div><div class="heritage-emblem"><img src="../assets/embedded/177bf600a76658a8.webp" width="76" height="72" alt="Дерево — символ премии НАСЛЕДИЕ"></div><div class="kicker">Премия XXI века</div><h1 class="main-title">НАСЛЕДИЕ</h1><div class="ornament" aria-hidden="true">✦</div><h2>ТОП-5 значимых проектов XXI века</h2><p class="lead">Голосуйте за проект, идею, модель или методологию, которые, по вашему мнению, заслуживают особого признания.</p>
+<div class="countdown" aria-label="Таймер до окончания голосования"><div class="countdown-title">До окончания голосования</div><div class="digits" id="timerRows"><div class="digit"><b id="t0">—</b><span>дней</span></div><div class="digit"><b id="t1">—</b><span>часов</span></div><div class="digit"><b id="t2">—</b><span>минут</span></div><div class="digit"><b id="t3">—</b><span>секунд</span></div></div></div></section>
+
+<section class="page active" id="page-nominees" role="tabpanel"><div class="section-head"><h3>Выбирайте достойных</h3></div><p class="preview-status" id="voteStatus" role="status">Подключение к голосованию…</p>
+<div class="find-row"><label class="search-wrap"><span class="search-icon" aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Имя или №" autocomplete="off" aria-label="Поиск по имени, номинации или номеру"></label><div class="controls"><select id="sort" aria-label="Сортировка"><option value="list">По списку</option><option value="votes">По голосам</option></select></div></div><div class="cards" id="cards"></div><button type="button" class="more" id="more">Показать ещё номинантов ↓</button></section>
+<section class="page" id="page-top5" role="tabpanel"><div class="section-head"><h3>ТОП-5</h3></div><p class="ranking-sub">Номинанты, получившие наибольшее количество голосов. Это промежуточный рейтинг, а не окончательные победители премии.</p><div id="leaders"></div><p class="disclaimer">Официальные результаты трёх этапов конкурса будут объявлены 27 ноября. Рейтинг обновляется по подтверждённым данным голосования.</p></section>
+<section class="page" id="page-rules" role="tabpanel"><div class="section-head"><h3>Как проголосовать</h3></div><p class="rules-lead">Познакомьтесь с номинантами премии «НАСЛЕДИЕ XXI века» и выберите достойного.</p><div class="rule"><strong>Один участник — один голос</strong><p>Вы можете поддержать одного номинанта.</p></div><div class="rule"><strong>Выбор можно изменить</strong><p>При переголосовании прежний голос заменяется новым.</p></div><div class="rule"><strong>До 21 ноября, 23:59 МСК</strong><p>После этого времени голосование будет закрыто.</p></div><div class="rule"><strong>Текущий ТОП-5</strong><p>Количество голосов можно посмотреть в рейтинге. Окончательные итоги трёх этапов конкурса объявят 27 ноября.</p></div><button class="btn" type="button" data-page="nominees">Перейти к номинантам</button></section>
+<footer class="end-note">Премия «НАСЛЕДИЕ XXI века» · Голосование до 21 ноября 2026 года</footer><nav class="tabs" role="tablist" aria-label="Разделы"><button class="tab active" type="button" data-page="nominees" role="tab" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="9" cy="8" r="3"/><path d="M3.5 19v-2a5.5 5.5 0 0 1 11 0v2M17 5a3 3 0 0 1 0 6m1 3a4.8 4.8 0 0 1 2.5 4.5"/></svg><span>Номинанты</span></button><button class="tab" type="button" data-page="top5" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2.9 2.75 5.58 6.16.89-4.46 4.35 1.05 6.14L12 16.96l-5.5 2.9 1.05-6.14L3.09 9.37l6.16-.89L12 2.9Z"/></svg><span>ТОП-5</span></button><button class="tab" type="button" data-page="rules" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M9 9h6M9 13h6M9 17h4"/></svg><span>Правила</span></button></nav></main>
+<div class="overlay" id="confirm" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="confirmTitle"><div class="dialog"><button type="button" class="close-x" data-close="confirm" aria-label="Закрыть">×</button><h3 id="confirmTitle">Подтвердите выбор</h3><p>Вы голосуете за номинанта:</p><p class="dialog-name" id="confirmName"></p><p id="confirmInfo"></p><button type="button" class="btn" id="approve">Подтвердить голос</button><button type="button" class="btn secondary" data-close="confirm">Вернуться к списку</button></div></div>
+<div class="overlay" id="thanks" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="thankTitle"><div class="dialog"><div class="thanks-symbol" aria-hidden="true">✓</div><h3 id="thankTitle">Голос учтён</h3><p>Информация об итогах голосования будет опубликована в канале конкурса премии «НАСЛЕДИЕ XXI века».</p><p>Подписывайтесь — там много полезного и важного для НАСЛЕДИЯ.</p><a class="btn" href="https://t.me/nasledie_premiya" target="_blank" rel="noopener noreferrer">Подписаться на канал</a><button class="btn secondary" type="button" data-close="thanks">Вернуться к номинантам</button></div></div>
+<div class="overlay" id="photo" role="dialog" aria-modal="true" aria-label="Фото номинанта"><div class="photo-view"><button type="button" data-close="photo" aria-label="Закрыть">×</button><img id="fullPhoto" alt="Фотография номинанта"></div></div>
+<script src="./config.js?v=20261119-game-1"></script><script src="../votes/notibot-bridge.js"></script><script src="./simulation.js?v=20261119-game-1"></script><script>
+const NOMINEES=[{"id":1,"name":"Юлия Бернштейн","nomination":"Наследие в деталях","image":"../assets/embedded/1c95a0506f1d22ee.webp","display":"../assets/embedded/ccc9784a75f67058.webp"},{"id":2,"name":"Ирина Павлова","nomination":"Психологическая инновация года","image":"../assets/embedded/1153adff5434c1d5.webp","display":"../assets/embedded/457bcf4c855e69fa.webp"},{"id":3,"name":"Альбина Тагирова","nomination":"Социальные инновации, демографическая политика и технологии психологического здоровья (Традиционные ценности).","image":"../assets/embedded/1d6aa7f2484cb791.webp","display":"../assets/embedded/f782485471c0e280.webp"},{"id":4,"name":"Елена Петрова","nomination":"За создание женского сообщества, поддерживающего экономическое благополучие и самореализацию женщин","image":"../assets/embedded/661c5ee3c3cafd5d.webp","display":"../assets/embedded/ec241ea25b3d239e.webp"},{"id":5,"name":"Кира Рябых","nomination":"За вклад в бережную систему","image":"../assets/embedded/3d15d30a6bf0c9d6.webp","display":"../assets/embedded/908159d6c49bf7f8.webp"},{"id":6,"name":"Ульяна Жиглова","nomination":"Вклад в развитие малого бизнеса","image":"../assets/embedded/161c5228df7c9b0d.webp","display":"../assets/embedded/14bb3f9aa7ec5bbf.webp"},{"id":7,"name":"Анна Казьмина","nomination":"Методология с измеримым эффектом нутрициолога","image":"../assets/embedded/34033e038a9d2959.webp","display":"../assets/embedded/bc407715bc14d3b9.webp"},{"id":8,"name":"Марина Сторина","nomination":"Методический прорыв года","image":"../assets/embedded/3a71eb621f7c1a30.webp","display":"../assets/embedded/be0aa4dcb35a9cd1.webp"},{"id":9,"name":"Надежда Мухидова Хелси","nomination":"Точка опоры: инновационный подход к психокоррекции пищевого поведения и формированию культуры здорового питания","image":"../assets/embedded/e6626c469581b2c1.webp","display":"../assets/embedded/63b6ee550d0bdbd5.webp"},{"id":10,"name":"Александр Асеев","nomination":"За вклад в защиту прав граждан и развитие общественных институтов","image":"../assets/embedded/009b2c12b3bf7715.webp","display":"../assets/embedded/9256f31b20b19a18.webp"},{"id":11,"name":"Анна Ступина","nomination":"Женщина — основное наследие России","image":"../assets/embedded/ba286fadb88597c2.webp","display":"../assets/embedded/f7493fe44feef2b0.webp"},{"id":12,"name":"Ирина Самохина","nomination":"Направление «Методологии и стандарты». Авторский метод развития проявленности","image":"../assets/embedded/82f8d01362551033.webp","display":"../assets/embedded/f49469dd6c2edd3e.webp"},{"id":13,"name":"Мила Тихомирова","nomination":"За вклад в раскрытие человеческого потенциала, развитие женских возможностей и формирование культуры осознанного партнёрства","image":"../assets/embedded/c96b884918be62a3.webp","display":"../assets/embedded/054f23ec0c6b7a94.webp"},{"id":14,"name":"Елена Мальцева","nomination":"Практическая психология","image":"../assets/embedded/3a3110f7b246314f.webp","display":"../assets/embedded/33895ef3cfa2eb8e.webp"},{"id":15,"name":"Татьяна Сытник","nomination":"Вклад в формирование и укрепление экономического суверенитета страны через культуру налогового поведения","image":"../assets/embedded/9e29218ee076d938.webp","display":"../assets/embedded/9f57693b472d43f0.webp"},{"id":16,"name":"Нарине Мурадян","nomination":"Вклад в ментальное здоровье страны. Лучший авторский проект по исследованию влияния убеждений и внутренних процессов на жизнь человека","image":"../assets/embedded/a4c1ffb8a6edb914.webp","display":"../assets/embedded/08fcaf77c6e8181d.webp"},{"id":17,"name":"Анна Проценко","nomination":"Вклад в развитие ментального здоровья нации через авторский метод «Нумерологический мастермайнд»","image":"../assets/embedded/4ee0094056083dbd.webp","display":"../assets/embedded/a73a2d4c7270fc57.webp"},{"id":18,"name":"Ирина Исаадаева","nomination":"Вклад в развитие малого бизнеса в Саратовской области","image":"../assets/embedded/660ff99c820e1353.webp","display":"../assets/embedded/a2d8eae38b80da36.webp"},{"id":19,"name":"Татьяна Храмова","nomination":"Лучший авторский проект по формированию культуры здоровья и качества жизни в России","image":"../assets/embedded/9f47946141294bf6.webp","display":"../assets/embedded/3441a621139cda25.webp"},{"id":20,"name":"Ольга Сы́са","nomination":"Методология с измеримым эффектом","image":"../assets/embedded/d28603f844884e98.webp","display":"../assets/embedded/74800e52075e09f8.webp"},{"id":21,"name":"Диана Николаева","nomination":"Развитие культурного кода в номинации GR «Государство, общество и территория»","image":"../assets/embedded/e997bab18b1abed8.webp","display":"../assets/embedded/a09fded0892e1899.webp"},{"id":22,"name":"Мария Черникова и Светлана Волобуева","nomination":"Опора территории: устойчивые сообщества и инфраструктура поддержки","image":"../assets/embedded/e6f07827f39c9367.webp","display":"../assets/embedded/06615a7f975af533.webp"},{"id":23,"name":"Юлия Попова","nomination":"За вклад в развитие финансовой грамотности","image":"../assets/embedded/6f79a37ab03ac63c.webp","display":"../assets/embedded/3859bc3b178eac25.webp"}];
+const CUTOFF=new Date('2026-11-21T23:59:00+03:00').getTime();
+const VOTES_API_URL=String(window.NASLEDIE_VOTES_API||'').trim().replace(/\/$/,'');
+let counts={}; let totalsLoaded=!!window.NasledieDemo?.active; let notibotUserId=null; let voteReady=false;
+window.__nasledieVotesPromise?.then(result=>{if(result?.ok&&result.counts){counts=result.counts;totalsLoaded=true;render();}});
+let selected=null, pending=null, perPage=8, activePage='nominees';
+
+const el=id=>document.getElementById(id);
+const clean=s=>String(s||'').toLocaleLowerCase('ru-RU').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ё/g,'е').trim();
+function safe(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function voteCount(id){return window.NasledieDemo?.count(id,counts)??Number(counts[String(id)]||0);}
+function statusMessage(message){const e=el('voteStatus');if(e)e.textContent=message;}
+
+function identityFrom(source){
+ if(!source||typeof source!=='object')return null;
+ const first=(...values)=>values.find(v=>v!==undefined&&v!==null&&String(v).trim()!=='');
+ const tg=first(source.telegramId,source.telegram_id,source.tgId,source.tg_id,source.telegram?.id,source.telegram?.userId);
+ if(tg!==undefined)return 'tg:'+String(tg).trim().replace(/^(?:tg|telegram):/i,'');
+ const max=first(source.maxId,source.max_id,source.max?.id);
+ if(max!==undefined)return 'max:'+String(max).trim().replace(/^max:/i,'');
+ const nb=first(source.notibotUserId,source.notibot_user_id,source.userId,source.user_id,source.id);
+ return nb===undefined?null:'nb:'+String(nb).trim().replace(/^nb:/i,'');
+}
+function updateIdentity(source){
+ const next=identityFrom(source);
+ if(next!==notibotUserId){notibotUserId=next;selected=null;}
+ updateVoteReady();render();refreshTotals();
+}
+function updateVoteReady(){
+ voteReady=Boolean(notibotUserId&&VOTES_API_URL&&Date.now()<CUTOFF);
+ if(window.NasledieDemo?.active)statusMessage(Date.now()>=CUTOFF?'Голосование завершено.':!notibotUserId?'Откройте страницу внутри Notibot, чтобы сохранить голос.':'Выберите номинанта и подтвердите голос.');
+ else if(!notibotUserId)statusMessage('Откройте голосование внутри приложения Notibot.');
+ else if(!VOTES_API_URL)statusMessage('Сервер голосования пока не подключён.');
+ else if(Date.now()>=CUTOFF)statusMessage('Голосование завершено.');
+ else statusMessage('Выберите номинанта и подтвердите голос.');
+}
+async function refreshTotals(){
+ if(!VOTES_API_URL){updateVoteReady();return;}
+ const controller=new AbortController();
+ const timer=setTimeout(()=>controller.abort(),12000);
+ try{
+  const r=await fetch(VOTES_API_URL+'/api/votes?userId='+encodeURIComponent(notibotUserId||'')+'&fresh='+Date.now(),{
+   signal:controller.signal,cache:'no-store'
+  });
+  if(!r.ok)throw Error('Сервер голосования не отвечает (HTTP '+r.status+').');
+  const result=await r.json();
+  if(!result.ok||!result.counts||typeof result.counts!=='object')throw Error('Неверный ответ сервера.');
+  counts=result.counts;totalsLoaded=true;
+  if(notibotUserId)selected=result.selected?Number(result.selected):null;
+  render();
+ }catch(err){
+  console.error('Vote loading failed',err);
+  statusMessage(err.name==='AbortError'?'Сервер голосования не ответил вовремя.':err.message||'Не удалось загрузить голоса.');
+ }finally{clearTimeout(timer);}
+}
+async function submitRealVote(){
+ if(!pending)return;
+ updateVoteReady();
+ if(!voteReady){
+  el('confirmInfo').textContent=!notibotUserId
+   ?'Откройте эту страницу внутри Notibot, чтобы проголосовать.'
+   :!VOTES_API_URL?'Сервер голосования пока не подключён.':'Голосование завершено.';
+  return;
+ }
+ const id=pending;
+ const button=el('approve');
+ const controller=new AbortController();
+ const timer=setTimeout(()=>controller.abort(),12000);
+ button.disabled=true;button.textContent='Сохраняем голос…';
+ try{
+  const r=await fetch(VOTES_API_URL+'/api/vote',{
+   method:'POST',
+   headers:{'Content-Type':'text/plain'},
+   body:JSON.stringify({userId:notibotUserId,nomineeId:id}),
+   signal:controller.signal
+  });
+  const payload=await r.json().catch(()=>({}));
+  if(!r.ok||!payload.ok)throw Error(payload.error||'Сервер не сохранил голос (HTTP '+r.status+').');
+  counts=payload.counts||{};
+  selected=Number(payload.selected)||id;
+  pending=null;hideModal('confirm');render();showThanks();
+  statusMessage('Ваш голос сохранён.');
+ }catch(err){
+  console.error('Vote saving failed',err);
+  el('confirmInfo').textContent=err.name==='AbortError'?
+    'Сервер не ответил вовремя. Проверьте соединение и повторите.' :
+    err.name==='TypeError'?
+    'Не удалось связаться с сервером голосования. Проверьте соединение.' :
+    err.message||'Не удалось сохранить голос.';
+ }finally{
+  clearTimeout(timer);
+  button.disabled=false;button.textContent='Подтвердить голос';
+ }
+}
+function initVoting(){
+ updateVoteReady();
+ const bridge=window.NotibotIntegration;
+ if(bridge?.onUpdate){
+  bridge.onUpdate(state=>{
+   if(!state.connected)return;
+   updateIdentity(state.identity&&identityFrom(state.identity)?state.identity:state.user);
+  });
+ }else if(window.notibot?.onUpdate){
+  window.notibot.onUpdate(user=>updateIdentity(user));
+ }
+ if(window.parent!==window){
+  window.addEventListener('message',ev=>{
+   if(ev.source!==window.parent)return;
+   if(ev.data?.type==='NOTIBOT_INIT')updateIdentity(ev.data.data?.user);
+  });
+ }
+ refreshTotals();
+ setInterval(refreshTotals,10000);
+}
+
+function pad(n){return String(n).padStart(2,'0');}
+function updateTimer(){let dt=Math.max(0,CUTOFF-Date.now());const end=dt<=0; if(end){el('timerRows').innerHTML='<div class="ended">Голосование завершено</div>';document.querySelectorAll('.vote-btn').forEach(b=>b.disabled=true);return;}
+ const v=[Math.floor(dt/864e5),Math.floor(dt%864e5/36e5),Math.floor(dt%36e5/6e4),Math.floor(dt%6e4/1000)];
+ for(let i=0;i<4;i++){const e=el('t'+i);if(e)e.textContent=pad(v[i]);}
+}
+function render(){
+ const q=clean(el('search').value),sort=el('sort').value;
+ const numbered=q.match(/^(?:номинант\s*)?№?\s*0*(\d+)$/u);
+ let list=NOMINEES.filter(n=>!q||(numbered ? n.id===Number(numbered[1]) : clean(n.name+' '+n.nomination).includes(q)));
+ if(sort==='votes')list.sort((a,b)=>voteCount(b.id)-voteCount(a.id)||a.id-b.id); else list.sort((a,b)=>a.id-b.id);
+ const slice=list.slice(0,perPage);
+ el('cards').innerHTML=slice.map(n=>{
+ const votes=voteCount(n.id),current=selected===n.id;
+ return `<article class="nominee" id="n-${n.id}"><button class="portrait-button" type="button" data-photo="${n.id}" aria-label="Посмотреть полную фотографию: ${safe(n.name)}"><img class="portrait" src="${n.display}" width="560" height="560" loading="lazy" decoding="async" alt="Фотография премии: ${safe(n.name)}"></button><div class="content"><div class="eyebrow">Номинант №${n.id}</div><h4 class="name">${safe(n.name)}</h4><div class="nomination">${safe(n.nomination)}</div><div class="card-actions"><div class="vote-count">${totalsLoaded?'<strong>'+votes+'</strong> '+plural(votes,['голос','голоса','голосов']):'Загрузка…'}</div><button type="button" class="vote-btn ${current?'chosen':''}" data-vote="${n.id}" ${Date.now()>=CUTOFF?'disabled':''}>${current?'Ваш голос':'Проголосовать'}</button></div></div></article>`;
+ }).join('')||'<div class="empty">По вашему запросу номинанты не найдены. Попробуйте изменить поиск.</div>';
+ el('more').hidden=list.length<=perPage;
+ updateTimer();
+ renderRank();
+}
+function plural(n,forms){const v=n%100,k=v%10;return v>10&&v<20?forms[2]:k===1?forms[0]:k>=2&&k<=4?forms[1]:forms[2]}
+function renderRank(){if(!totalsLoaded){el('leaders').innerHTML='<div class="empty">Загрузка рейтинга…</div>';return;}const leaders=[...NOMINEES].filter(n=>voteCount(n.id)>0).sort((a,b)=>voteCount(b.id)-voteCount(a.id)||a.id-b.id).slice(0,5);
+ el('leaders').innerHTML=leaders.map((n,i)=>`<div class="rank-card"><div class="rank-place">${i+1}</div><img class="rank-photo" loading="lazy" src="${n.display}" alt=""><div class="rank-body"><div class="rank-name">${safe(n.name)}</div><div class="rank-votes">${voteCount(n.id)} ${plural(voteCount(n.id),['голос','голоса','голосов'])}</div></div><button class="rank-open" data-open="${n.id}">Карточка</button></div>`).join('') || '<div class="empty">Рейтинг появится после первых голосов.</div>';}
+function showPage(name){activePage=name; document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));document.querySelectorAll('.tab').forEach(t=>{const act=t.dataset.page===name;t.classList.toggle('active',act);t.setAttribute('aria-selected',String(act))}); window.scrollTo({top:el('page-'+name).getBoundingClientRect().top+window.scrollY-12,behavior:'smooth'});}
+function showModal(id){pending=id;const n=NOMINEES.find(x=>x.id===id);if(!n)return;
+ el('confirmTitle').textContent=selected&&selected!==id?'Изменить ваш голос?':'Подтвердите выбор';
+ el('confirmName').textContent=n.name;
+ el('confirmInfo').textContent=!VOTES_API_URL?'Сервер голосования пока не подключён.':selected&&selected!==id?'Ваш предыдущий голос будет заменён новым.':'После подтверждения ваш голос будет отправлен для учёта.';
+ el('confirm').classList.add('open');el('confirm').setAttribute('aria-hidden','false');}
+function hideModal(id){el(id).classList.remove('open');el(id).setAttribute('aria-hidden','true');}
+function showThanks(){el('thanks').classList.add('open');el('thanks').setAttribute('aria-hidden','false');}
+function showPhoto(id){const n=NOMINEES.find(x=>x.id===id);if(!n)return; el('fullPhoto').src=n.display;el('fullPhoto').alt='Фото номинанта: '+n.name;el('photo').classList.add('open');}
+el('search').addEventListener('input',()=>{perPage=8;render()});el('sort').addEventListener('change',render);
+el('more').addEventListener('click',()=>{perPage+=8;render()});
+document.addEventListener('click',e=>{
+ const tab=e.target.closest('[data-page]');if(tab){showPage(tab.dataset.page);return;}
+ const v=e.target.closest('[data-vote]');if(v){const id=Number(v.dataset.vote);if(selected===id){showThanks()}else showModal(id);return;}
+ const op=e.target.closest('[data-open]');if(op){showPage('nominees');el('search').value='';perPage=23;render();setTimeout(()=>el('n-'+op.dataset.open)?.scrollIntoView({behavior:'smooth',block:'center'}),130);return;}
+ const img=e.target.closest('[data-photo]');if(img){showPhoto(Number(img.dataset.photo));return;}
+ if(e.target.closest('[data-close]')){hideModal(e.target.closest('[data-close]').dataset.close);return;}
+ if(e.target.classList.contains('overlay'))hideModal(e.target.id);
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.overlay.open').forEach(x=>hideModal(x.id))}if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-photo]')){e.preventDefault();showPhoto(Number(e.target.dataset.photo))}});
+el('approve').addEventListener('click',submitRealVote);
+window.NasledieDemo?.mountNotice();
+initVoting();render();updateTimer();setInterval(updateTimer,1000);
+if(window.NasledieDemo?.active)setInterval(render,30000);
+</script></body></html>
