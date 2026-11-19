@@ -32,16 +32,16 @@
   function mountNotice() {
     if (!active) return;
     const style = win.document.createElement('style');
-    style.textContent = '.demo-notice{max-width:960px;margin:18px auto;padding:15px 20px;box-sizing:border-box;border:1px solid rgba(218,199,175,.7);border-radius:14px;background:#32231f;color:#f2dcbb;text-align:center;font-size:15px;line-height:1.55}.demo-notice strong{display:block;font-size:16px;margin-bottom:4px}.demo-notice span{opacity:.92}@media(max-width:650px){.demo-notice{margin:12px 14px;font-size:14px}}';
+    style.textContent = '.demo-caption{font-size:13px;line-height:1.45;color:#cbbba7;text-align:center;margin:4px auto 14px;max-width:700px;padding:0 10px}';
     win.document.head.appendChild(style);
 
-    const note = win.document.createElement('div');
-    note.className = 'demo-notice';
+    // Keep the educational simulation clearly identified, without a large card.
+    const note = win.document.createElement('p');
+    note.className = 'demo-caption';
     note.setAttribute('role', 'note');
-    note.innerHTML = '<strong>Учебный деморежим</strong><span>Количество голосов и ТОП-5 здесь смоделированы. Счётчики растут автоматически до 21 ноября, 23:59 МСК. Настоящая база голосов не изменяется.</span>';
-
-    const hero = win.document.querySelector('.hero');
-    if (hero) hero.insertAdjacentElement('afterend', note);
+    note.textContent = 'Демо: счётчики и рейтинг смоделированы.';
+    const nomineesHeading = win.document.querySelector('#page-nominees .section-head');
+    if (nomineesHeading) nomineesHeading.insertAdjacentElement('afterend', note);
 
     const rankingSubtitle = win.document.querySelector('.ranking-sub');
     if (rankingSubtitle) {
