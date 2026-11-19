@@ -29,25 +29,9 @@
     return Math.max(real, Math.floor(real + (target - real) * progress(now)));
   }
 
-  function mountNotice() {
-    if (!active) return;
-    const style = win.document.createElement('style');
-    style.textContent = '.demo-caption{font-size:13px;line-height:1.45;color:#cbbba7;text-align:center;margin:4px auto 14px;max-width:700px;padding:0 10px}';
-    win.document.head.appendChild(style);
-
-    // Keep the educational simulation clearly identified, without a large card.
-    const note = win.document.createElement('p');
-    note.className = 'demo-caption';
-    note.setAttribute('role', 'note');
-    note.textContent = 'Демо: счётчики и рейтинг смоделированы.';
-    const nomineesHeading = win.document.querySelector('#page-nominees .section-head');
-    if (nomineesHeading) nomineesHeading.insertAdjacentElement('afterend', note);
-
-    const rankingSubtitle = win.document.querySelector('.ranking-sub');
-    if (rankingSubtitle) {
-      rankingSubtitle.textContent = 'Учебная симуляция ТОП-5: результаты изменяются по времени и не являются реальными итогами голосования.';
-    }
-  }
+  // The two pages are deliberately visually identical for the comparison game.
+  // The query parameter remains an explicit way to identify the simulation.
+  function mountNotice() {}
 
   win.NasledieDemo = Object.freeze({active, count, progress, mountNotice});
 })(window);
