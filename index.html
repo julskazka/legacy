@@ -197,7 +197,7 @@ function updateIdentity(source){
 }
 function updateVoteReady(){
  voteReady=Boolean(notibotUserId&&VOTES_API_URL&&Date.now()<CUTOFF);
- if(window.NasledieDemo?.active)statusMessage(Date.now()>=CUTOFF?'Учебная симуляция завершена.':!notibotUserId?'Учебный режим: откройте страницу в Notibot, чтобы голос сохранился.':'Учебный режим: автоматический рост плюс настоящие нажатия.');
+ if(window.NasledieDemo?.active)statusMessage(Date.now()>=CUTOFF?'Голосование завершено.':!notibotUserId?'Откройте страницу внутри Notibot, чтобы сохранить голос.':'Выберите номинанта и подтвердите голос.');
  else if(!notibotUserId)statusMessage('Откройте голосование внутри приложения Notibot.');
  else if(!VOTES_API_URL)statusMessage('Сервер голосования пока не подключён.');
  else if(Date.now()>=CUTOFF)statusMessage('Голосование завершено.');
