@@ -1,4 +1,5 @@
 import html
+import hashlib
 import json
 import os
 import re
@@ -10,6 +11,7 @@ from urllib.parse import parse_qs, urlparse
 
 DB_PATH = os.environ.get("VOTES_DB", "/data/votes.db")
 END_AT = "2026-11-21T20:59:00.000Z"
+END_AT_DT = datetime.fromisoformat(END_AT.replace("Z", "+00:00"))
 CALLBACK_RE = re.compile(r"^(?:window\.)?[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*$")
 
 
@@ -52,7 +54,10 @@ def save_vote(user_id, nominee_id):
     nominee_id = int(nominee_id)
     if nominee_id < 1 or nominee_id > 50:
         raise ValueError("Invalid nomineeId")
-    now = datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+    now_dt = datetime.now(timezone.utc)
+    if now_dt > END_AT_DT:
+        raise ValueError("Voting is closed")
+    now = now_dt.isoformat(timespec="milliseconds").replace("+00:00", "Z")
     with connect() as db:
         db.execute("BEGIN IMMEDIATE")
         db.execute("""
@@ -62,6 +67,8 @@ def save_vote(user_id, nominee_id):
                 updated_at = excluded.updated_at
         """, (user_id, nominee_id, now))
         db.commit()
+    voter_hash = hashlib.sha256(user_id.encode("utf-8")).hexdigest()[:12]
+    print(f"VOTE SAVED voter={voter_hash} nominee={nominee_id} time={now}", flush=True)
     return snapshot(user_id)
 
 
