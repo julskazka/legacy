@@ -1,0 +1,13 @@
+name: Read Amvera vote snapshot
+on:
+  push:
+    paths:
+      - '.github/workflows/read-amvera-snapshot.yml'
+  workflow_dispatch:
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read live Amvera counts
+        run: |
+          curl -fsS --connect-timeout 10 --max-time 25 'https://nasledie-vote-julskazka.msk1.amvera.tech/api/votes'
