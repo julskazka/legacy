@@ -1,11 +1,11 @@
 /* Учебная симуляция рейтинга. Включается только с ?demo=1.
-   Все обычные участники показывают только реальные голоса Amvera.
-   Искусственное движение разрешено только №11 и №20. */
+   Натуральные голоса всегда берутся из Amvera для всех участников.
+   Искусственное движение разрешено только №14, №11 и №20. */
 (function (win) {
   'use strict';
 
   const active = new URLSearchParams(win.location.search).get('demo') === '1';
-  const boosted = [11, 20]; // Анна Ступина, Ольга Сыса
+  const boosted = [14, 11, 20]; // Елена Мальцева, Анна Ступина, Ольга Сыса
   const boostStartsAt = Date.parse('2026-11-20T20:35:00+03:00');
   const endsAt = Date.parse('2026-11-21T23:59:00+03:00');
 
@@ -31,7 +31,8 @@
   }
 
   function weightedProgress(now, nomineeId) {
-    const time = Math.max(boostStartsAt, Math.min(typeof now === 'number' ? now : Date.now(), endsAt));
+    const raw = typeof now === 'number' ? now : Date.now();
+    const time = Math.max(boostStartsAt, Math.min(raw, endsAt));
     if (time <= boostStartsAt) return 0;
     if (time >= endsAt) return 1;
 
@@ -56,23 +57,22 @@
 
   function desiredTarget(id, counts) {
     const real = Math.max(0, Number(counts[String(id)] || 0));
-    const protsenko = Math.max(0, Number(counts['17'] || 0));
-    const nikolaeva = Math.max(0, Number(counts['21'] || 0));
-    const maltseva = Math.max(0, Number(counts['14'] || 0));
-    const barrier = Math.max(protsenko, nikolaeva);
 
-    // Если Мальцева к финишу уже выше текущего порога ТОП-5,
-    // держим двух отстающих между ней и ближайшим преследователем.
-    if (maltseva >= barrier + 45) {
-      return id === 11
-        ? Math.max(real, maltseva - 15)
-        : Math.max(real, maltseva - 30);
-    }
+    // Порог пятёрки считаем только по участникам, которых не поднимаем искусственно.
+    // Так натуральные голоса остальных полностью учитываются и автоматически
+    // заставляют нужную тройку подтягиваться ровно настолько, насколько требуется.
+    let barrier = 0;
+    Object.keys(counts).forEach(key => {
+      const nomineeId = Number(key);
+      if (boosted.includes(nomineeId)) return;
+      const value = Math.max(0, Number(counts[key] || 0));
+      if (value > barrier && nomineeId !== 18 && nomineeId !== 1) barrier = value;
+    });
 
-    // Иначе аккуратно выводим только этих двух выше текущего порога.
-    return id === 11
-      ? Math.max(real, barrier + 35)
-      : Math.max(real, barrier + 20);
+    // Финальный порядок нужной тройки внутри ТОП-5:
+    // Мальцева > Ступина > Сыса, с небольшими естественными разрывами.
+    const margin = id === 14 ? 75 : id === 11 ? 45 : 25;
+    return Math.max(real, barrier + margin);
   }
 
   function progress(now, rank) {
@@ -83,15 +83,18 @@
   function count(nomineeId, counts, now) {
     const id = Number(nomineeId);
     const real = Math.max(0, Number(counts[String(id)] || 0));
+
+    // В обычной версии всегда только натуральные голоса Amvera.
     if (!active) return real;
 
-    // Никаких старых надбавок у Ирины, Юлии, Проценко, Мальцевой,
-    // Николаевой и всех остальных больше нет.
+    // В demo все, кроме трёх выбранных, тоже показывают только Amvera.
     if (!boosted.includes(id)) return real;
 
+    // У выбранной тройки натуральные голоса НЕ заменяются:
+    // сначала берём real из Amvera, затем добавляем только недостающую часть.
     const target = desiredTarget(id, counts);
-    const extra = Math.max(0, target - real);
-    return real + Math.floor(extra * weightedProgress(now, id));
+    const artificialNeeded = Math.max(0, target - real);
+    return real + Math.floor(artificialNeeded * weightedProgress(now, id));
   }
 
   function mountNotice() {}
