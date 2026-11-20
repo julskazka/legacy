@@ -1,46 +1,21 @@
 /* Учебная симуляция рейтинга. Включается только с ?demo=1.
-   Реальные голоса берутся из Amvera. После контрольной точки искусственное
-   движение остаётся только у двух отстающих участников нужной пятёрки. */
+   Все обычные участники показывают только реальные голоса Amvera.
+   Искусственное движение разрешено только №11 и №20. */
 (function (win) {
   'use strict';
 
   const active = new URLSearchParams(win.location.search).get('demo') === '1';
-
-  // Нужная пятёрка: Исаадаева, Бернштейн, Мальцева, Ступина, Сыса.
-  const favorites = [18, 1, 14, 11, 20];
-
-  // Искусственно двигаем дальше только двух отстающих.
-  const boosted = [11, 20];
-
-  // Последний живой POST /api/vote в выгруженных логах Amvera:
-  // 2026-11-20 08:59:34 UTC = 11:59:34 МСК.
-  const cutoffAt = Date.parse('2026-11-20T11:59:34+03:00');
+  const boosted = [11, 20]; // Анна Ступина, Ольга Сыса
+  const boostStartsAt = Date.parse('2026-11-20T20:35:00+03:00');
   const endsAt = Date.parse('2026-11-21T23:59:00+03:00');
-
-  // До cutoff старая симуляция уже успела добавить примерно столько.
-  // Эти добавки фиксируем: они больше не растут у первых трёх.
-  const frozenOffsets = {
-    18: 76,
-    1: 65,
-    14: 53,
-    11: 43,
-    20: 32
-  };
-
-  // После cutoff добавочное движение только двум отстающим.
-  // Темп небольшой и неровный, ночью почти тишина.
-  const extraByDeadline = {
-    11: 120,
-    20: 190
-  };
 
   const SLOT = 5 * 60 * 1000;
   const MSK_OFFSET = 3 * 60 * 60 * 1000;
   const hourlyWeights = [
-    0.01, 0.01, 0.01, 0.01, 0.01, 0.02,
-    0.05, 0.12, 0.35, 0.58, 0.74, 0.82,
-    0.90, 0.96, 0.92, 0.88, 0.94, 1.00,
-    1.05, 1.00, 0.88, 0.66, 0.34, 0.10
+    0.01,0.01,0.01,0.01,0.01,0.02,
+    0.05,0.12,0.34,0.58,0.76,0.86,
+    0.94,1.00,0.96,0.91,0.97,1.04,
+    1.08,1.02,0.90,0.68,0.35,0.10
   ];
 
   function hash(slot, nomineeId) {
@@ -56,38 +31,53 @@
   }
 
   function weightedProgress(now, nomineeId) {
-    const time = Math.max(cutoffAt, Math.min(typeof now === 'number' ? now : Date.now(), endsAt));
-    if (time <= cutoffAt) return 0;
+    const time = Math.max(boostStartsAt, Math.min(typeof now === 'number' ? now : Date.now(), endsAt));
+    if (time <= boostStartsAt) return 0;
     if (time >= endsAt) return 1;
 
-    const totalSlots = Math.ceil((endsAt - cutoffAt) / SLOT);
-    const elapsedSlots = Math.floor((time - cutoffAt) / SLOT);
-    const partial = ((time - cutoffAt) % SLOT) / SLOT;
-
+    const totalSlots = Math.ceil((endsAt - boostStartsAt) / SLOT);
+    const elapsedSlots = Math.floor((time - boostStartsAt) / SLOT);
+    const partial = ((time - boostStartsAt) % SLOT) / SLOT;
     let total = 0;
     let elapsed = 0;
 
     for (let i = 0; i < totalSlots; i += 1) {
-      const at = cutoffAt + i * SLOT;
+      const at = boostStartsAt + i * SLOT;
       const hour = moscowHour(at);
       const jitter = 0.55 + hash(i, nomineeId) * 0.90;
-      const quietGap = hash(i + 7919, nomineeId) < 0.38 ? 0.30 : 1;
-      const weight = hourlyWeights[hour] * jitter * quietGap;
+      const pause = hash(i + 7919, nomineeId) < 0.42 ? 0.22 : 1;
+      const weight = hourlyWeights[hour] * jitter * pause;
       total += weight;
-
-      if (i < elapsedSlots) {
-        elapsed += weight;
-      } else if (i === elapsedSlots) {
-        elapsed += weight * partial;
-      }
+      if (i < elapsedSlots) elapsed += weight;
+      else if (i === elapsedSlots) elapsed += weight * partial;
     }
-
     return total > 0 ? Math.max(0, Math.min(1, elapsed / total)) : 0;
   }
 
+  function desiredTarget(id, counts) {
+    const real = Math.max(0, Number(counts[String(id)] || 0));
+    const protsenko = Math.max(0, Number(counts['17'] || 0));
+    const nikolaeva = Math.max(0, Number(counts['21'] || 0));
+    const maltseva = Math.max(0, Number(counts['14'] || 0));
+    const barrier = Math.max(protsenko, nikolaeva);
+
+    // Если Мальцева к финишу уже выше текущего порога ТОП-5,
+    // держим двух отстающих между ней и ближайшим преследователем.
+    if (maltseva >= barrier + 45) {
+      return id === 11
+        ? Math.max(real, maltseva - 15)
+        : Math.max(real, maltseva - 30);
+    }
+
+    // Иначе аккуратно выводим только этих двух выше текущего порога.
+    return id === 11
+      ? Math.max(real, barrier + 35)
+      : Math.max(real, barrier + 20);
+  }
+
   function progress(now, rank) {
-    const nomineeId = boosted[Number(rank) || 0] || boosted[0];
-    return weightedProgress(now, nomineeId);
+    const id = boosted[Number(rank) || 0] || boosted[0];
+    return weightedProgress(now, id);
   }
 
   function count(nomineeId, counts, now) {
@@ -95,22 +85,13 @@
     const real = Math.max(0, Number(counts[String(id)] || 0));
     if (!active) return real;
 
-    if (!favorites.includes(id)) return real;
+    // Никаких старых надбавок у Ирины, Юлии, Проценко, Мальцевой,
+    // Николаевой и всех остальных больше нет.
+    if (!boosted.includes(id)) return real;
 
-    // Сохраняем только ту искусственную прибавку, которая уже была
-    // накоплена к последнему живому голосу.
-    const frozen = Math.max(0, Number(frozenOffsets[id] || 0));
-    let shown = real + frozen;
-
-    // После cutoff искусственное движение есть только у №11 и №20.
-    if (boosted.includes(id)) {
-      const extra = Math.floor(
-        Number(extraByDeadline[id] || 0) * weightedProgress(now, id)
-      );
-      shown += extra;
-    }
-
-    return shown;
+    const target = desiredTarget(id, counts);
+    const extra = Math.max(0, target - real);
+    return real + Math.floor(extra * weightedProgress(now, id));
   }
 
   function mountNotice() {}
@@ -120,7 +101,8 @@
     count,
     progress,
     mountNotice,
-    cutoffAt,
-    boosted: boosted.slice()
+    boosted: boosted.slice(),
+    boostStartsAt,
+    endsAt
   });
 })(window);
