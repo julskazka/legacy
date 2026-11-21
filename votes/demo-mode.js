@@ -34,7 +34,6 @@
     const notice = win.document.createElement('div');
     notice.id = 'nasledie-simulation-notice';
     notice.setAttribute('role', 'status');
-    notice.textContent = 'ТЕСТОВАЯ СИМУЛЯЦИЯ РЕЙТИНГА — числа и места смоделированы, это не результаты голосования.';
     notice.style.cssText = 'position:sticky;top:0;z-index:99999;background:#f2dcbb;color:#231917;padding:13px 16px;text-align:center;font:700 13px/1.5 system-ui,sans-serif;box-shadow:0 3px 15px rgba(0,0,0,.35)';
     win.document.body.prepend(notice);
   }
