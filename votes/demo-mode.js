@@ -11,8 +11,6 @@
     const values = Object.values(counts || {}).map(v => Math.max(0, Number(v) || 0));
     const maxReal = Math.max(0, ...values);
     const sixth = Math.max(1, Math.min(realCount(17, counts), maxReal));
-    // Все числа на тестовой странице являются значениями сценария,
-    // а не итогами настоящего голосования.
     const results = Object.create(null);
     Object.keys(counts || {}).forEach(key => {
       const id = Number(key);
