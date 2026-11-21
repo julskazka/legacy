@@ -196,8 +196,8 @@ function updateIdentity(source){
  updateVoteReady();render();refreshTotals();
 }
 function updateVoteReady(){
- voteReady=Boolean(notibotUserId&&VOTES_API_URL&&Date.now()<CUTOFF);
- if(window.NasledieDemo?.active)statusMessage(Date.now()>=CUTOFF?'Голосование завершено.':!notibotUserId?'Откройте страницу внутри Notibot, чтобы сохранить голос.':'Выберите номинанта и подтвердите голос.');
+ voteReady=Boolean(!window.NasledieDemo?.active&&notibotUserId&&VOTES_API_URL&&Date.now()<CUTOFF);
+ if(window.NasledieDemo?.active)statusMessage('Тестовая симуляция: отправка реальных голосов отключена.');
  else if(!notibotUserId)statusMessage('Откройте голосование внутри приложения Notibot.');
  else if(!VOTES_API_URL)statusMessage('Сервер голосования пока не подключён.');
  else if(Date.now()>=CUTOFF)statusMessage('Голосование завершено.');
@@ -223,6 +223,7 @@ async function refreshTotals(){
  }finally{clearTimeout(timer);}
 }
 async function submitRealVote(){
+ if(window.NasledieDemo?.active)return;
  if(!pending)return;
  updateVoteReady();
  if(!voteReady){
@@ -295,7 +296,7 @@ function render(){
  const slice=list.slice(0,perPage);
  el('cards').innerHTML=slice.map(n=>{
  const votes=voteCount(n.id),current=selected===n.id;
- return `<article class="nominee" id="n-${n.id}"><button class="portrait-button" type="button" data-photo="${n.id}" aria-label="Посмотреть полную фотографию: ${safe(n.name)}"><img class="portrait" src="${n.display}" width="560" height="560" loading="lazy" decoding="async" alt="Фотография премии: ${safe(n.name)}"></button><div class="content"><div class="eyebrow">Номинант №${n.id}</div><h4 class="name">${safe(n.name)}</h4><div class="nomination">${safe(n.nomination)}</div><div class="card-actions"><div class="vote-count">${totalsLoaded?'<strong>'+votes+'</strong> '+plural(votes,['голос','голоса','голосов']):'Загрузка…'}</div><button type="button" class="vote-btn ${current?'chosen':''}" data-vote="${n.id}" ${Date.now()>=CUTOFF?'disabled':''}>${current?'Ваш голос':'Проголосовать'}</button></div></div></article>`;
+ return `<article class="nominee" id="n-${n.id}"><button class="portrait-button" type="button" data-photo="${n.id}" aria-label="Посмотреть полную фотографию: ${safe(n.name)}"><img class="portrait" src="${n.display}" width="560" height="560" loading="lazy" decoding="async" alt="Фотография премии: ${safe(n.name)}"></button><div class="content"><div class="eyebrow">Номинант №${n.id}</div><h4 class="name">${safe(n.name)}</h4><div class="nomination">${safe(n.nomination)}</div><div class="card-actions"><div class="vote-count">${totalsLoaded?'<strong>'+votes+'</strong> '+plural(votes,['голос','голоса','голосов']):'Загрузка…'}</div><button type="button" class="vote-btn ${current?'chosen':''}" data-vote="${n.id}" ${Date.now()>=CUTOFF||window.NasledieDemo?.active?'disabled':''}>${window.NasledieDemo?.active?'Тестовый рейтинг':current?'Ваш голос':'Проголосовать'}</button></div></div></article>`;
  }).join('')||'<div class="empty">По вашему запросу номинанты не найдены. Попробуйте изменить поиск.</div>';
  el('more').hidden=list.length<=perPage;
  updateTimer();
