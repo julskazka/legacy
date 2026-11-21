@@ -1,4 +1,4 @@
-name: Read Amvera vote snapshot
+name: Read Amvera vote snapshot (21 Nov check)
 on:
   push:
     paths:
