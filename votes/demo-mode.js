@@ -4,10 +4,12 @@
   'use strict';
 
   const active = new URLSearchParams(win.location.search).get('demo') === '1';
-  // Only nominee 17 is frozen in the separate test display.
-  // All other nominee counts are read live from Amvera.
+  // Fixed counts for three nominees in the labeled test scenario only.
+  // Other counts remain live from Amvera; real vote records are unchanged.
   const fixedCounts = Object.freeze({
-    17: 1454
+    11: 1113, // Анна Ступина
+    20: 1009, // Ольга Сыса
+    17: 1454 // Анна Проценко
   });
   const desiredOrder = [18, 1, 14, 11, 20, 17];
 
