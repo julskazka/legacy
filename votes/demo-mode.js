@@ -27,13 +27,6 @@
     if (!active) return realCount(id, counts);
     return simulatedCounts(counts)[String(id)] ?? realCount(id, counts);
   }
-  function mountNotice() {
-    if (!active || win.document.getElementById('nasledie-simulation-notice')) return;
-    const notice = win.document.createElement('div');
-    notice.id = 'nasledie-simulation-notice';
-    notice.setAttribute('role', 'status');
-    win.document.body.prepend(notice);
-  }
   win.NasledieDemo = Object.freeze({
     active,
     count,
