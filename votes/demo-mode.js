@@ -7,7 +7,7 @@
   // Fixed counts for three nominees in the labeled test scenario only.
   // Other counts remain live from Amvera; real vote records are unchanged.
   const fixedCounts = Object.freeze({
-    11: 1113, // Анна Ступина
+    11: 913, // Анна Ступина
     20: 1009, // Ольга Сыса
     17: 1454 // Анна Проценко
   });
