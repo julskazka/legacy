@@ -197,7 +197,7 @@ function updateIdentity(source){
 }
 function updateVoteReady(){
  voteReady=Boolean(!window.NasledieDemo?.active&&notibotUserId&&VOTES_API_URL&&Date.now()<CUTOFF);
- if(window.NasledieDemo?.active)statusMessage('Выберите номинанта и подтвердите голос..');
+ if(window.NasledieDemo?.active)statusMessage('Выберите номинанта и подтвердите голос.');
  else if(!notibotUserId)statusMessage('Откройте голосование внутри приложения Notibot.');
  else if(!VOTES_API_URL)statusMessage('Сервер голосования пока не подключён.');
  else if(Date.now()>=CUTOFF)statusMessage('Голосование завершено.');
