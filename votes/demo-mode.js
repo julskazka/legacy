@@ -32,6 +32,7 @@
     count,
     mountNotice,
     boosted: [],
+    fixedIds: Object.keys(fixedCounts).map(Number),
     desiredOrder: desiredOrder.slice()
   });
 })(window);
