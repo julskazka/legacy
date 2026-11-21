@@ -27,6 +27,7 @@
     if (!active) return realCount(id, counts);
     return simulatedCounts(counts)[String(id)] ?? realCount(id, counts);
   }
+  function mountNotice() {}
   win.NasledieDemo = Object.freeze({
     active,
     count,
