@@ -4,13 +4,10 @@
   'use strict';
 
   const active = new URLSearchParams(win.location.search).get('demo') === '1';
+  // Only nominee 17 is frozen in the separate test display.
+  // All other nominee counts are read live from Amvera.
   const fixedCounts = Object.freeze({
-    18: 1575, // Ирина Исаадаева
-    1: 1545,  // Юлия Бернштейн
-    14: 1515, // Елена Мальцева
-    11: 1485, // Анна Ступина
-    20: 1455, // Ольга Сыса
-    17: 1454  // Анна Проценко: шестое место только в тестовом сценарии
+    17: 1454
   });
   const desiredOrder = [18, 1, 14, 11, 20, 17];
 
